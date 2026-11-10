@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import * as bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
@@ -142,6 +143,19 @@ const catalog = [
 ];
 
 async function main() {
+  // Dev-only librarian account so the protected routes can be tested.
+  // Change this password for any real deployment.
+  const passwordHash = await bcrypt.hash('Librarian123!', 10);
+  await prisma.user.upsert({
+    where: { email: 'librarian@library.test' },
+    update: {},
+    create: {
+      email: 'librarian@library.test',
+      password: passwordHash,
+      role: 'LIBRARIAN',
+    },
+  });
+
   for (const g of catalog) {
     // Genres first, because every book needs a genreId that already exists
     const genre = await prisma.genre.upsert({
@@ -166,7 +180,7 @@ async function main() {
       });
     }
   }
-  console.log('Seeding complete: 4 genres, 16 books');
+  console.log('Seeding complete: 4 genres, 16 books, 1 librarian');
 }
 
 main()
