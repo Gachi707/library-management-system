@@ -1,0 +1,130 @@
+newman
+
+Library Management System API
+
+□ Auth
+└ Register patron
+  POST http://127.0.0.1:3000/auth/register [409 Conflict, 347B, 1183ms]
+  √  201 with an access_token (or 409 if already registered)
+
+└ Login librarian
+  POST http://127.0.0.1:3000/auth/login [200 OK, 451B, 446ms]
+  √  Status is 200
+  √  Response has access_token
+
+└ Login patron
+  POST http://127.0.0.1:3000/auth/login [200 OK, 447B, 362ms]
+  √  Status is 200
+
+└ Register - invalid body (400)
+  POST http://127.0.0.1:3000/auth/register [400 Bad Request, 410B, 15ms]
+  √  Status is 400
+
+└ Login - wrong password (401)
+  POST http://127.0.0.1:3000/auth/login [401 Unauthorized, 350B, 367ms]
+  √  Status is 401
+
+□ Genres
+└ List genres
+  GET http://127.0.0.1:3000/genres [200 OK, 447B, 189ms]
+  √  Status is 200
+
+└ Get genre by id
+  GET http://127.0.0.1:3000/genres/1 [200 OK, 330B, 450ms]
+  √  Status is 200
+
+└ Create genre (librarian)
+  POST http://127.0.0.1:3000/genres [201 Created, 312B, 425ms]
+  √  Status is 201
+
+└ Update genre (librarian)
+  PATCH http://127.0.0.1:3000/genres/6 [200 OK, 317B, 613ms]
+  √  Status is 200
+
+└ Delete genre (librarian)
+  DELETE http://127.0.0.1:3000/genres/6 [200 OK, 317B, 957ms]
+  √  Status is 200
+
+└ Delete genre in use (409)
+  DELETE http://127.0.0.1:3000/genres/1 [409 Conflict, 350B, 372ms]
+  √  Status is 409
+
+└ Create genre - no token (401)
+  POST http://127.0.0.1:3000/genres [401 Unauthorized, 320B, 7ms]
+  √  Status is 401
+
+└ Create genre - patron token (403)
+  POST http://127.0.0.1:3000/genres [403 Forbidden, 343B, 8ms]
+  √  Status is 403
+
+□ Books
+└ List books (paginated)
+  GET http://127.0.0.1:3000/books?page=1&limit=10 [200 OK, 3.58kB, 740ms]
+  √  Status is 200 and body is an array
+  √  limit is respected
+
+└ Filter by genre
+  GET http://127.0.0.1:3000/books?genreId=1 [200 OK, 1.59kB, 732ms]
+  √  Status is 200
+  √  Every book belongs to genre 1
+
+└ Search title or author
+  GET http://127.0.0.1:3000/books?search=clean [200 OK, 581B, 579ms]
+  √  Status is 200
+
+└ Get book by id
+  GET http://127.0.0.1:3000/books/1 [200 OK, 612B, 554ms]
+  √  Status is 200
+
+└ Create book (librarian)
+  POST http://127.0.0.1:3000/books [201 Created, 566B, 1306ms]
+  √  Status is 201
+  √  availableCopies equals totalCopies
+
+└ Update book (librarian)
+  PATCH http://127.0.0.1:3000/books/19 [200 OK, 561B, 1460ms]
+  √  Status is 200
+
+└ Delete book (librarian)
+  DELETE http://127.0.0.1:3000/books/19 [200 OK, 509B, 736ms]
+  √  Status is 200
+
+└ Create book - no token (401)
+  POST http://127.0.0.1:3000/books [401 Unauthorized, 320B, 8ms]
+  √  Status is 401
+
+└ Create book - patron token (403)
+  POST http://127.0.0.1:3000/books [403 Forbidden, 343B, 6ms]
+  √  Status is 403
+
+└ Create book - missing title (400)
+  POST http://127.0.0.1:3000/books [400 Bad Request, 382B, 6ms]
+  √  Status is 400
+
+└ Create book - missing description (400)
+  POST http://127.0.0.1:3000/books [400 Bad Request, 394B, 5ms]
+  √  Status is 400
+
+└ Get missing book (404)
+  GET http://127.0.0.1:3000/books/999999 [404 Not Found, 346B, 201ms]
+  √  Status is 404
+
+┌─────────────────────────┬────────────────────┬────────────────────┐
+│                         │           executed │             failed │
+├─────────────────────────┼────────────────────┼────────────────────┤
+│              iterations │                  1 │                  0 │
+├─────────────────────────┼────────────────────┼────────────────────┤
+│                requests │                 25 │                  0 │
+├─────────────────────────┼────────────────────┼────────────────────┤
+│            test-scripts │                 25 │                  0 │
+├─────────────────────────┼────────────────────┼────────────────────┤
+│      prerequest-scripts │                  0 │                  0 │
+├─────────────────────────┼────────────────────┼────────────────────┤
+│              assertions │                 29 │                  0 │
+├─────────────────────────┴────────────────────┴────────────────────┤
+│ total run duration: 13.7s                                         │
+├───────────────────────────────────────────────────────────────────┤
+│ total data received: 7.73kB (approx)                              │
+├───────────────────────────────────────────────────────────────────┤
+│ average response time: 469ms [min: 5ms, max: 1460ms, s.d.: 417ms] │
+└───────────────────────────────────────────────────────────────────┘

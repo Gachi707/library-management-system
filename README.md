@@ -37,51 +37,73 @@ Base URL: `http://localhost:3000`
 
 Seeded dev librarian: `librarian@library.test` / `Librarian123!`. Import `docs/postman_collection.json` to try every endpoint.
 
-## Schema Decisions
-
-### Why Book references Genre instead of embedding it
-
-Each Book stores a `genreId` foreign key that points to a row in the Genre table, rather than storing the genre name as text inside every book.
-
-If the genre name were stored directly on each book, renaming a genre such as "Science Fiction" to "Sci-Fi" would mean updating every book that uses the old name. If even one record were missed, the database would hold inconsistent names for the same category. It would also repeat the same genre name across many book records.
-
-Keeping genres in their own table and linking to them through `genreId` means the name is stored once. Renaming a genre is a single update, and every book reflects it automatically. Since `slug` also lives on Genre, it is updated in that same single row.
-
-### What the foreign key protects
-
-Because `genreId` is a foreign key, PostgreSQL will not allow a book to reference a genre that does not exist. For example, if a book is created with `genreId = 15` and no genre with ID 15 exists, the database rejects the operation.
-
-It also protects existing relationships: a genre that is still used by books cannot simply be deleted unless the deletion rules allow it. This keeps the data reliable, since every book is always connected to a valid genre.
-
-### Why `totalCopies` and `availableCopies` are separate
-
-The two fields represent different things:
-
-- `totalCopies` is how many physical copies of a book the library owns.
-- `availableCopies` is how many of those copies can currently be borrowed.
-
-For example, if the library owns 10 copies of *Things Fall Apart* and 4 are borrowed, `totalCopies` stays at 10 while `availableCopies` becomes 6.
-
-Keeping both values lets the system track the whole collection without confusing borrowed books with missing stock. It also makes it simple to check that a copy is available before approving a borrow request.
-
-The schema only stores these numbers. It does not stop `availableCopies` from exceeding `totalCopies` or going below zero, so the borrowing logic in a later week will need to keep them consistent.
-
-### Users and roles
-
-The User model has a `Role` enum with two values, `PATRON` and `LIBRARIAN`, defaulting to `PATRON`. The `RolesGuard` uses this role to restrict creating, updating and deleting books and genres to librarians.
-
 <!-- REQUIRED-FILES:START -->
-## Required Files
+## Repository Contents
 
 _Generated from the real files by `scripts/update-readme.sh`._
 
+### Every file in the repository
+
+```text
+docs/newman-results.txt
+scripts/run-tests.sh
+scripts/verify-submission.sh
+README.md
+api/.env.example
+api/.gitattributes
+api/.gitignore
+api/.oxlintrc.json
+api/.prettierrc
+api/AGENTS.md
+api/README.md
+api/jest.config.ts
+api/nest-cli.json
+api/package-lock.json
+api/package.json
+api/prisma/migrations/20261108133914_init/migration.sql
+api/prisma/migrations/migration_lock.toml
+api/prisma/schema.prisma
+api/prisma/seed.ts
+api/src/app.controller.spec.ts
+api/src/app.controller.ts
+api/src/app.module.ts
+api/src/app.service.ts
+api/src/auth/auth.controller.ts
+api/src/auth/auth.module.ts
+api/src/auth/auth.service.ts
+api/src/auth/dto/login.dto.ts
+api/src/auth/dto/register.dto.ts
+api/src/auth/jwt-auth.guard.ts
+api/src/auth/jwt.strategy.ts
+api/src/auth/roles.decorator.ts
+api/src/auth/roles.guard.ts
+api/src/books/books.controller.ts
+api/src/books/books.module.ts
+api/src/books/books.service.ts
+api/src/books/dto/create-book.dto.ts
+api/src/books/dto/update-book.dto.ts
+api/src/genres/dto/create-genre.dto.ts
+api/src/genres/dto/update-genre.dto.ts
+api/src/genres/genres.controller.ts
+api/src/genres/genres.module.ts
+api/src/genres/genres.service.ts
+api/src/main.ts
+api/src/prisma/prisma.module.ts
+api/src/prisma/prisma.service.spec.ts
+api/src/prisma/prisma.service.ts
+api/test/app.e2e-spec.ts
+api/test/jest-e2e.json
+api/tsconfig.build.json
+api/tsconfig.json
+docs/postman_collection.json
+scripts/readme-files.txt
+scripts/update-readme.sh
+```
+
+### Required files
+
 | File | Link |
 |---|---|
-| `api/prisma/schema.prisma` | [view](https://github.com/Gachi707/library-management-system/blob/main/api/prisma/schema.prisma) |
-| `api/prisma/seed.ts` | [view](https://github.com/Gachi707/library-management-system/blob/main/api/prisma/seed.ts) |
-| `api/src/prisma/prisma.service.ts` | [view](https://github.com/Gachi707/library-management-system/blob/main/api/src/prisma/prisma.service.ts) |
-| `api/.env.example` | [view](https://github.com/Gachi707/library-management-system/blob/main/api/.env.example) |
-| `api/prisma/migrations/20261108133914_init/migration.sql` | [view](https://github.com/Gachi707/library-management-system/blob/main/api/prisma/migrations/20261108133914_init/migration.sql) |
 | `api/src/main.ts` | [view](https://github.com/Gachi707/library-management-system/blob/main/api/src/main.ts) |
 | `api/src/genres/genres.controller.ts` | [view](https://github.com/Gachi707/library-management-system/blob/main/api/src/genres/genres.controller.ts) |
 | `api/src/genres/genres.service.ts` | [view](https://github.com/Gachi707/library-management-system/blob/main/api/src/genres/genres.service.ts) |
@@ -97,327 +119,144 @@ _Generated from the real files by `scripts/update-readme.sh`._
 | `api/src/auth/roles.decorator.ts` | [view](https://github.com/Gachi707/library-management-system/blob/main/api/src/auth/roles.decorator.ts) |
 | `api/src/auth/roles.guard.ts` | [view](https://github.com/Gachi707/library-management-system/blob/main/api/src/auth/roles.guard.ts) |
 
-### api/prisma/schema.prisma
-
-```prisma
-generator client {
-  provider = "prisma-client-js"
-}
-
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-
-enum Role {
-  PATRON
-  LIBRARIAN
-}
-
-model User {
-  id       Int    @id @default(autoincrement())
-  email    String @unique
-  password String
-  role     Role   @default(PATRON)
-}
-
-model Genre {
-  id    Int    @id @default(autoincrement())
-  name  String @unique
-  slug  String @unique
-  books Book[]
-}
-
-model Book {
-  id              Int      @id @default(autoincrement())
-  title           String
-  author          String
-  isbn            String   @unique
-  description     String
-  coverImage      String?
-  totalCopies     Int      @default(1)
-  availableCopies Int      @default(1)
-  genreId         Int
-  genre           Genre    @relation(fields: [genreId], references: [id])
-  createdAt       DateTime @default(now())
-}
-```
-
-### api/prisma/seed.ts
-
-```ts
-import { PrismaClient } from '@prisma/client';
-import * as bcrypt from 'bcryptjs';
-
-const prisma = new PrismaClient();
-
-const catalog = [
-  {
-    name: 'Fiction',
-    slug: 'fiction',
-    books: [
-      {
-        title: 'Things Fall Apart',
-        author: 'Chinua Achebe',
-        isbn: '9780385474542',
-        copies: 3,
-        description: "Okonkwo's story and the collision between Igbo tradition and colonial rule in Nigeria.",
-      },
-      {
-        title: 'Half of a Yellow Sun',
-        author: 'Chimamanda Ngozi Adichie',
-        isbn: '9781400095209',
-        copies: 2,
-        description: 'A novel of three lives caught up in the Nigerian-Biafran War.',
-      },
-      {
-        title: 'Petals of Blood',
-        author: 'Ngũgĩ wa Thiong’o',
-        isbn: '9780143026358',
-        copies: 2,
-        description: 'Corruption, land and struggle in post-independence Kenya.',
-      },
-      {
-        title: 'The Alchemist',
-        author: 'Paulo Coelho',
-        isbn: '9780062315007',
-        copies: 4,
-        description: "A shepherd boy's journey in search of treasure and his personal legend.",
-      },
-    ],
-  },
-  {
-    name: 'Science',
-    slug: 'science',
-    books: [
-      {
-        title: 'A Brief History of Time',
-        author: 'Stephen Hawking',
-        isbn: '9780553380163',
-        copies: 3,
-        description: 'The Big Bang, black holes and the nature of time, explained for general readers.',
-      },
-      {
-        title: 'The Selfish Gene',
-        author: 'Richard Dawkins',
-        isbn: '9780198788607',
-        copies: 2,
-        description: 'Evolution seen from the point of view of the gene.',
-      },
-      {
-        title: 'Cosmos',
-        author: 'Carl Sagan',
-        isbn: '9780345539434',
-        copies: 2,
-        description: "A tour of the universe and humanity's place in it.",
-      },
-      {
-        title: 'Silent Spring',
-        author: 'Rachel Carson',
-        isbn: '9780618249060',
-        copies: 1,
-        description: 'The 1962 warning about pesticides and the damage they do to nature.',
-      },
-    ],
-  },
-  {
-    name: 'History',
-    slug: 'history',
-    books: [
-      {
-        title: 'Long Walk to Freedom',
-        author: 'Nelson Mandela',
-        isbn: '9780316548182',
-        copies: 3,
-        description: "Mandela's autobiography, from a rural childhood to the presidency of South Africa.",
-      },
-      {
-        title: 'Sapiens',
-        author: 'Yuval Noah Harari',
-        isbn: '9780062316110',
-        copies: 4,
-        description: 'A brief history of humankind from the Stone Age to the present.',
-      },
-      {
-        title: 'Guns, Germs, and Steel',
-        author: 'Jared Diamond',
-        isbn: '9780393317558',
-        copies: 2,
-        description: 'Why human societies developed so differently across the continents.',
-      },
-      {
-        title: 'How Europe Underdeveloped Africa',
-        author: 'Walter Rodney',
-        isbn: '9781788731218',
-        copies: 2,
-        description: "An analysis of how colonial exploitation shaped Africa's economic position.",
-      },
-    ],
-  },
-  {
-    name: 'Technology',
-    slug: 'technology',
-    books: [
-      {
-        title: 'Clean Code',
-        author: 'Robert C. Martin',
-        isbn: '9780132350884',
-        copies: 3,
-        description: 'A handbook of writing readable, maintainable code.',
-      },
-      {
-        title: 'The Pragmatic Programmer',
-        author: 'Andrew Hunt and David Thomas',
-        isbn: '9780135957059',
-        copies: 2,
-        description: 'Practical advice on the craft and habits of working programmers.',
-      },
-      {
-        title: 'Eloquent JavaScript',
-        author: 'Marijn Haverbeke',
-        isbn: '9781593279509',
-        copies: 2,
-        description: 'A modern introduction to JavaScript and programming.',
-      },
-      {
-        title: 'Designing Data-Intensive Applications',
-        author: 'Martin Kleppmann',
-        isbn: '9781449373320',
-        copies: 1,
-        description: 'The principles behind reliable, scalable and maintainable data systems.',
-      },
-    ],
-  },
-];
-
-async function main() {
-  // Dev-only librarian account so the protected routes can be tested.
-  // Change this password for any real deployment.
-  const passwordHash = await bcrypt.hash('Librarian123!', 10);
-  await prisma.user.upsert({
-    where: { email: 'librarian@library.test' },
-    update: {},
-    create: {
-      email: 'librarian@library.test',
-      password: passwordHash,
-      role: 'LIBRARIAN',
-    },
-  });
-
-  for (const g of catalog) {
-    // Genres first, because every book needs a genreId that already exists
-    const genre = await prisma.genre.upsert({
-      where: { slug: g.slug },
-      update: {},
-      create: { name: g.name, slug: g.slug },
-    });
-
-    for (const b of g.books) {
-      await prisma.book.upsert({
-        where: { isbn: b.isbn },
-        update: {},
-        create: {
-          title: b.title,
-          author: b.author,
-          isbn: b.isbn,
-          description: b.description,
-          totalCopies: b.copies,
-          availableCopies: b.copies,
-          genreId: genre.id,
-        },
-      });
-    }
-  }
-  console.log('Seeding complete: 4 genres, 16 books, 1 librarian');
-}
-
-main()
-  .catch((e) => {
-    console.error(e);
-    process.exit(1);
-  })
-  .finally(() => prisma.$disconnect());
-```
-
-### api/src/prisma/prisma.service.ts
-
-```ts
-import { Injectable, OnModuleInit } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
-
-@Injectable()
-export class PrismaService extends PrismaClient implements OnModuleInit {
-  async onModuleInit() {
-    await this.$connect();
-  }
-}
-```
-
-### api/.env.example
+### API test results (Newman, run against the live API)
 
 ```text
-DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/DBNAME"
-JWT_SECRET="replace-with-a-long-random-string"
+newman
+
+Library Management System API
+
+□ Auth
+└ Register patron
+  POST http://127.0.0.1:3000/auth/register [409 Conflict, 347B, 1183ms]
+  √  201 with an access_token (or 409 if already registered)
+
+└ Login librarian
+  POST http://127.0.0.1:3000/auth/login [200 OK, 451B, 446ms]
+  √  Status is 200
+  √  Response has access_token
+
+└ Login patron
+  POST http://127.0.0.1:3000/auth/login [200 OK, 447B, 362ms]
+  √  Status is 200
+
+└ Register - invalid body (400)
+  POST http://127.0.0.1:3000/auth/register [400 Bad Request, 410B, 15ms]
+  √  Status is 400
+
+└ Login - wrong password (401)
+  POST http://127.0.0.1:3000/auth/login [401 Unauthorized, 350B, 367ms]
+  √  Status is 401
+
+□ Genres
+└ List genres
+  GET http://127.0.0.1:3000/genres [200 OK, 447B, 189ms]
+  √  Status is 200
+
+└ Get genre by id
+  GET http://127.0.0.1:3000/genres/1 [200 OK, 330B, 450ms]
+  √  Status is 200
+
+└ Create genre (librarian)
+  POST http://127.0.0.1:3000/genres [201 Created, 312B, 425ms]
+  √  Status is 201
+
+└ Update genre (librarian)
+  PATCH http://127.0.0.1:3000/genres/6 [200 OK, 317B, 613ms]
+  √  Status is 200
+
+└ Delete genre (librarian)
+  DELETE http://127.0.0.1:3000/genres/6 [200 OK, 317B, 957ms]
+  √  Status is 200
+
+└ Delete genre in use (409)
+  DELETE http://127.0.0.1:3000/genres/1 [409 Conflict, 350B, 372ms]
+  √  Status is 409
+
+└ Create genre - no token (401)
+  POST http://127.0.0.1:3000/genres [401 Unauthorized, 320B, 7ms]
+  √  Status is 401
+
+└ Create genre - patron token (403)
+  POST http://127.0.0.1:3000/genres [403 Forbidden, 343B, 8ms]
+  √  Status is 403
+
+□ Books
+└ List books (paginated)
+  GET http://127.0.0.1:3000/books?page=1&limit=10 [200 OK, 3.58kB, 740ms]
+  √  Status is 200 and body is an array
+  √  limit is respected
+
+└ Filter by genre
+  GET http://127.0.0.1:3000/books?genreId=1 [200 OK, 1.59kB, 732ms]
+  √  Status is 200
+  √  Every book belongs to genre 1
+
+└ Search title or author
+  GET http://127.0.0.1:3000/books?search=clean [200 OK, 581B, 579ms]
+  √  Status is 200
+
+└ Get book by id
+  GET http://127.0.0.1:3000/books/1 [200 OK, 612B, 554ms]
+  √  Status is 200
+
+└ Create book (librarian)
+  POST http://127.0.0.1:3000/books [201 Created, 566B, 1306ms]
+  √  Status is 201
+  √  availableCopies equals totalCopies
+
+└ Update book (librarian)
+  PATCH http://127.0.0.1:3000/books/19 [200 OK, 561B, 1460ms]
+  √  Status is 200
+
+└ Delete book (librarian)
+  DELETE http://127.0.0.1:3000/books/19 [200 OK, 509B, 736ms]
+  √  Status is 200
+
+└ Create book - no token (401)
+  POST http://127.0.0.1:3000/books [401 Unauthorized, 320B, 8ms]
+  √  Status is 401
+
+└ Create book - patron token (403)
+  POST http://127.0.0.1:3000/books [403 Forbidden, 343B, 6ms]
+  √  Status is 403
+
+└ Create book - missing title (400)
+  POST http://127.0.0.1:3000/books [400 Bad Request, 382B, 6ms]
+  √  Status is 400
+
+└ Create book - missing description (400)
+  POST http://127.0.0.1:3000/books [400 Bad Request, 394B, 5ms]
+  √  Status is 400
+
+└ Get missing book (404)
+  GET http://127.0.0.1:3000/books/999999 [404 Not Found, 346B, 201ms]
+  √  Status is 404
+
+┌─────────────────────────┬────────────────────┬────────────────────┐
+│                         │           executed │             failed │
+├─────────────────────────┼────────────────────┼────────────────────┤
+│              iterations │                  1 │                  0 │
+├─────────────────────────┼────────────────────┼────────────────────┤
+│                requests │                 25 │                  0 │
+├─────────────────────────┼────────────────────┼────────────────────┤
+│            test-scripts │                 25 │                  0 │
+├─────────────────────────┼────────────────────┼────────────────────┤
+│      prerequest-scripts │                  0 │                  0 │
+├─────────────────────────┼────────────────────┼────────────────────┤
+│              assertions │                 29 │                  0 │
+├─────────────────────────┴────────────────────┴────────────────────┤
+│ total run duration: 13.7s                                         │
+├───────────────────────────────────────────────────────────────────┤
+│ total data received: 7.73kB (approx)                              │
+├───────────────────────────────────────────────────────────────────┤
+│ average response time: 469ms [min: 5ms, max: 1460ms, s.d.: 417ms] │
+└───────────────────────────────────────────────────────────────────┘
 ```
 
-### api/prisma/migrations/20261108133914_init/migration.sql
+### Source code
 
-```sql
--- CreateEnum
-CREATE TYPE "Role" AS ENUM ('PATRON', 'LIBRARIAN');
-
--- CreateTable
-CREATE TABLE "User" (
-    "id" SERIAL NOT NULL,
-    "email" TEXT NOT NULL,
-    "password" TEXT NOT NULL,
-    "role" "Role" NOT NULL DEFAULT 'PATRON',
-
-    CONSTRAINT "User_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "Genre" (
-    "id" SERIAL NOT NULL,
-    "name" TEXT NOT NULL,
-    "slug" TEXT NOT NULL,
-
-    CONSTRAINT "Genre_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "Book" (
-    "id" SERIAL NOT NULL,
-    "title" TEXT NOT NULL,
-    "author" TEXT NOT NULL,
-    "isbn" TEXT NOT NULL,
-    "description" TEXT NOT NULL,
-    "coverImage" TEXT,
-    "totalCopies" INTEGER NOT NULL DEFAULT 1,
-    "availableCopies" INTEGER NOT NULL DEFAULT 1,
-    "genreId" INTEGER NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT "Book_pkey" PRIMARY KEY ("id")
-);
-
--- CreateIndex
-CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Genre_name_key" ON "Genre"("name");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Genre_slug_key" ON "Genre"("slug");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Book_isbn_key" ON "Book"("isbn");
-
--- AddForeignKey
-ALTER TABLE "Book" ADD CONSTRAINT "Book_genreId_fkey" FOREIGN KEY ("genreId") REFERENCES "Genre"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-```
-
-### api/src/main.ts
+#### api/src/main.ts
 
 ```ts
 import { NestFactory } from '@nestjs/core';
@@ -433,7 +272,7 @@ async function bootstrap() {
 bootstrap();
 ```
 
-### api/src/genres/genres.controller.ts
+#### api/src/genres/genres.controller.ts
 
 ```ts
 import {
@@ -491,7 +330,7 @@ export class GenresController {
 }
 ```
 
-### api/src/genres/genres.service.ts
+#### api/src/genres/genres.service.ts
 
 ```ts
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
@@ -552,7 +391,7 @@ export class GenresService {
 }
 ```
 
-### api/src/genres/genres.module.ts
+#### api/src/genres/genres.module.ts
 
 ```ts
 import { Module } from '@nestjs/common';
@@ -568,7 +407,7 @@ import { GenresService } from './genres.service';
 export class GenresModule {}
 ```
 
-### api/src/books/dto/create-book.dto.ts
+#### api/src/books/dto/create-book.dto.ts
 
 ```ts
 import { IsInt, IsNotEmpty, IsOptional, IsString, Min } from 'class-validator';
@@ -584,7 +423,7 @@ export class CreateBookDto {
 }
 ```
 
-### api/src/books/books.controller.ts
+#### api/src/books/books.controller.ts
 
 ```ts
 import {
@@ -648,7 +487,7 @@ export class BooksController {
 }
 ```
 
-### api/src/books/books.service.ts
+#### api/src/books/books.service.ts
 
 ```ts
 import {
@@ -753,7 +592,7 @@ export class BooksService {
 }
 ```
 
-### api/src/auth/auth.controller.ts
+#### api/src/auth/auth.controller.ts
 
 ```ts
 import { Body, Controller, HttpCode, Post } from '@nestjs/common';
@@ -778,7 +617,7 @@ export class AuthController {
 }
 ```
 
-### api/src/auth/auth.service.ts
+#### api/src/auth/auth.service.ts
 
 ```ts
 import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
@@ -827,7 +666,7 @@ export class AuthService {
 }
 ```
 
-### api/src/auth/auth.module.ts
+#### api/src/auth/auth.module.ts
 
 ```ts
 import { Module } from '@nestjs/common';
@@ -857,7 +696,7 @@ import { JwtStrategy } from './jwt.strategy';
 export class AuthModule {}
 ```
 
-### api/src/auth/jwt.strategy.ts
+#### api/src/auth/jwt.strategy.ts
 
 ```ts
 import { Injectable } from '@nestjs/common';
@@ -882,7 +721,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 }
 ```
 
-### api/src/auth/jwt-auth.guard.ts
+#### api/src/auth/jwt-auth.guard.ts
 
 ```ts
 import { Injectable } from '@nestjs/common';
@@ -892,7 +731,7 @@ import { AuthGuard } from '@nestjs/passport';
 export class JwtAuthGuard extends AuthGuard('jwt') {}
 ```
 
-### api/src/auth/roles.decorator.ts
+#### api/src/auth/roles.decorator.ts
 
 ```ts
 import { SetMetadata } from '@nestjs/common';
@@ -904,7 +743,7 @@ export const ROLES_KEY = 'roles';
 export const Roles = (...roles: Role[]) => SetMetadata(ROLES_KEY, roles);
 ```
 
-### api/src/auth/roles.guard.ts
+#### api/src/auth/roles.guard.ts
 
 ```ts
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
@@ -930,3 +769,37 @@ export class RolesGuard implements CanActivate {
 ```
 
 <!-- REQUIRED-FILES:END -->
+
+## Schema Decisions
+
+### Why Book references Genre instead of embedding it
+
+Each Book stores a `genreId` foreign key that points to a row in the Genre table, rather than storing the genre name as text inside every book.
+
+If the genre name were stored directly on each book, renaming a genre such as "Science Fiction" to "Sci-Fi" would mean updating every book that uses the old name. If even one record were missed, the database would hold inconsistent names for the same category. It would also repeat the same genre name across many book records.
+
+Keeping genres in their own table and linking to them through `genreId` means the name is stored once. Renaming a genre is a single update, and every book reflects it automatically. Since `slug` also lives on Genre, it is updated in that same single row.
+
+### What the foreign key protects
+
+Because `genreId` is a foreign key, PostgreSQL will not allow a book to reference a genre that does not exist. For example, if a book is created with `genreId = 15` and no genre with ID 15 exists, the database rejects the operation.
+
+It also protects existing relationships: a genre that is still used by books cannot simply be deleted unless the deletion rules allow it. This keeps the data reliable, since every book is always connected to a valid genre.
+
+### Why `totalCopies` and `availableCopies` are separate
+
+The two fields represent different things:
+
+- `totalCopies` is how many physical copies of a book the library owns.
+- `availableCopies` is how many of those copies can currently be borrowed.
+
+For example, if the library owns 10 copies of *Things Fall Apart* and 4 are borrowed, `totalCopies` stays at 10 while `availableCopies` becomes 6.
+
+Keeping both values lets the system track the whole collection without confusing borrowed books with missing stock. It also makes it simple to check that a copy is available before approving a borrow request.
+
+The schema only stores these numbers. It does not stop `availableCopies` from exceeding `totalCopies` or going below zero, so the borrowing logic in a later week will need to keep them consistent.
+
+### Users and roles
+
+The User model has a `Role` enum with two values, `PATRON` and `LIBRARIAN`, defaulting to `PATRON`. The `RolesGuard` uses this role to restrict creating, updating and deleting books and genres to librarians.
+
