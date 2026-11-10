@@ -19,26 +19,26 @@ export class AuthService {
 
     // Never store the plain password: hash it first
     const hashed = await bcrypt.hash(dto.password, 10);
-
-    return this.prisma.user.create({
+    const user = await this.prisma.user.create({
       data: { email, password: hashed },
-      select: { id: true, email: true, role: true },
     });
+    return this.issueToken(user);
   }
 
   async login(dto: LoginDto) {
     const user = await this.prisma.user.findUnique({
       where: { email: dto.email.toLowerCase() },
     });
-    const valid = user ? await bcrypt.compare(dto.password, user.password) : false;
+    if (!user || !(await bcrypt.compare(dto.password, user.password))) {
+      // Same message for "no such user" and "wrong password" on purpose
+      throw new UnauthorizedException('Invalid credentials');
+    }
+    return this.issueToken(user);
+  }
 
-    // Same message for "no such user" and "wrong password" on purpose
-    if (!user || !valid) throw new UnauthorizedException('Invalid email or password');
-
-    const accessToken = await this.jwt.signAsync({ sub: user.id, role: user.role });
-    return {
-      accessToken,
-      user: { id: user.id, email: user.email, role: user.role },
-    };
+  // Issuing a token happens here (once, at login/register);
+  // verifying it happens later in JwtStrategy on every protected request.
+  private issueToken(user: { id: number; role: string }) {
+    return { access_token: this.jwt.sign({ sub: user.id, role: user.role }) };
   }
 }

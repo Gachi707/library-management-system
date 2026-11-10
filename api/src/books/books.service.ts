@@ -13,40 +13,29 @@ import { UpdateBookDto } from './dto/update-book.dto';
 export class BooksService {
   constructor(private prisma: PrismaService) {}
 
-  async findAll(genreId?: string, search?: string, page = '1', limit = '10') {
+  findAll(genreId?: string, search?: string, page = 1, limit = 20) {
     if (genreId !== undefined && Number.isNaN(Number(genreId))) {
       throw new BadRequestException('genreId must be a number');
     }
-    const pageNum = Math.max(Number(page) || 1, 1);
-    const take = Math.min(Math.max(Number(limit) || 10, 1), 100);
+    const take = Math.min(Math.max(Number(limit), 1), 100);
+    const skip = (Math.max(Number(page), 1) - 1) * take;
 
-    // Build the where clause from whichever filters were supplied
-    const where: Prisma.BookWhereInput = {
-      ...(genreId && { genreId: Number(genreId) }),
-      ...(search && {
-        OR: [
-          { title: { contains: search, mode: 'insensitive' } },
-          { author: { contains: search, mode: 'insensitive' } },
-        ],
-      }),
-    };
-
-    // Pagination: skip/take, plus a count so the client knows how many pages exist
-    const [data, total] = await this.prisma.$transaction([
-      this.prisma.book.findMany({
-        where,
-        include: { genre: true },
-        orderBy: { title: 'asc' },
-        skip: (pageNum - 1) * take,
-        take,
-      }),
-      this.prisma.book.count({ where }),
-    ]);
-
-    return {
-      data,
-      meta: { total, page: pageNum, limit: take, totalPages: Math.ceil(total / take) },
-    };
+    return this.prisma.book.findMany({
+      // Build the where clause from whichever filters were supplied
+      where: {
+        ...(genreId && { genreId: Number(genreId) }),
+        ...(search && {
+          OR: [
+            { title: { contains: search, mode: 'insensitive' } },
+            { author: { contains: search, mode: 'insensitive' } },
+          ],
+        }),
+      },
+      include: { genre: true },
+      orderBy: { title: 'asc' }, // a stable order keeps pages consistent
+      skip, // pagination: skip the earlier pages...
+      take, // ...and return one page
+    });
   }
 
   async findOne(id: number) {
@@ -61,12 +50,8 @@ export class BooksService {
   async create(dto: CreateBookDto) {
     try {
       return await this.prisma.book.create({
-        data: {
-          ...dto,
-          // description is required in the database, so fall back to a default
-          description: dto.description ?? `${dto.title} by ${dto.author}.`,
-          availableCopies: dto.totalCopies,
-        },
+        // a new book starts with every copy available
+        data: { ...dto, availableCopies: dto.totalCopies },
         include: { genre: true },
       });
     } catch (e) {
