@@ -1,0 +1,14 @@
+# dependencies and build output
+node_modules
+dist
+dist-ssr
+
+# logs and local overrides
+*.log
+*.local
+
+# OS files
+.DS_Store
+
+# NOTE: .env is NOT ignored on purpose. It only holds VITE_API_URL (the public
+# address of the API), never a secret. Do not put passwords or keys in this file.

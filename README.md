@@ -45,9 +45,23 @@ _Generated from the real files by `scripts/update-readme.sh`._
 ### Every file in the repository
 
 ```text
-docs/newman-results.txt
-scripts/run-tests.sh
-scripts/verify-submission.sh
+client/.env
+client/.gitignore
+client/index.html
+client/package-lock.json
+client/package.json
+client/src/App.jsx
+client/src/components/BookCard.jsx
+client/src/components/BookCover.jsx
+client/src/components/BookGrid.jsx
+client/src/components/GenreFilter.jsx
+client/src/components/SearchBar.jsx
+client/src/index.css
+client/src/main.jsx
+client/src/pages/BookDetail.jsx
+client/src/pages/HomePage.jsx
+client/src/pages/NotFound.jsx
+client/vite.config.js
 README.md
 api/.env.example
 api/.gitattributes
@@ -95,29 +109,29 @@ api/test/app.e2e-spec.ts
 api/test/jest-e2e.json
 api/tsconfig.build.json
 api/tsconfig.json
+docs/newman-results.txt
 docs/postman_collection.json
 scripts/readme-files.txt
+scripts/run-tests.sh
 scripts/update-readme.sh
+scripts/verify-submission.sh
 ```
 
 ### Required files
 
 | File | Link |
 |---|---|
-| `api/src/main.ts` | [view](https://github.com/Gachi707/library-management-system/blob/main/api/src/main.ts) |
-| `api/src/genres/genres.controller.ts` | [view](https://github.com/Gachi707/library-management-system/blob/main/api/src/genres/genres.controller.ts) |
-| `api/src/genres/genres.service.ts` | [view](https://github.com/Gachi707/library-management-system/blob/main/api/src/genres/genres.service.ts) |
-| `api/src/genres/genres.module.ts` | [view](https://github.com/Gachi707/library-management-system/blob/main/api/src/genres/genres.module.ts) |
-| `api/src/books/dto/create-book.dto.ts` | [view](https://github.com/Gachi707/library-management-system/blob/main/api/src/books/dto/create-book.dto.ts) |
-| `api/src/books/books.controller.ts` | [view](https://github.com/Gachi707/library-management-system/blob/main/api/src/books/books.controller.ts) |
-| `api/src/books/books.service.ts` | [view](https://github.com/Gachi707/library-management-system/blob/main/api/src/books/books.service.ts) |
-| `api/src/auth/auth.controller.ts` | [view](https://github.com/Gachi707/library-management-system/blob/main/api/src/auth/auth.controller.ts) |
-| `api/src/auth/auth.service.ts` | [view](https://github.com/Gachi707/library-management-system/blob/main/api/src/auth/auth.service.ts) |
-| `api/src/auth/auth.module.ts` | [view](https://github.com/Gachi707/library-management-system/blob/main/api/src/auth/auth.module.ts) |
-| `api/src/auth/jwt.strategy.ts` | [view](https://github.com/Gachi707/library-management-system/blob/main/api/src/auth/jwt.strategy.ts) |
-| `api/src/auth/jwt-auth.guard.ts` | [view](https://github.com/Gachi707/library-management-system/blob/main/api/src/auth/jwt-auth.guard.ts) |
-| `api/src/auth/roles.decorator.ts` | [view](https://github.com/Gachi707/library-management-system/blob/main/api/src/auth/roles.decorator.ts) |
-| `api/src/auth/roles.guard.ts` | [view](https://github.com/Gachi707/library-management-system/blob/main/api/src/auth/roles.guard.ts) |
+| `client/src/main.jsx` | [view](https://github.com/Gachi707/library-management-system/blob/main/client/src/main.jsx) |
+| `client/src/App.jsx` | [view](https://github.com/Gachi707/library-management-system/blob/main/client/src/App.jsx) |
+| `client/src/pages/HomePage.jsx` | [view](https://github.com/Gachi707/library-management-system/blob/main/client/src/pages/HomePage.jsx) |
+| `client/src/components/BookGrid.jsx` | [view](https://github.com/Gachi707/library-management-system/blob/main/client/src/components/BookGrid.jsx) |
+| `client/src/components/BookCard.jsx` | [view](https://github.com/Gachi707/library-management-system/blob/main/client/src/components/BookCard.jsx) |
+| `client/src/components/SearchBar.jsx` | [view](https://github.com/Gachi707/library-management-system/blob/main/client/src/components/SearchBar.jsx) |
+| `client/src/pages/BookDetail.jsx` | [view](https://github.com/Gachi707/library-management-system/blob/main/client/src/pages/BookDetail.jsx) |
+| `client/.env` | [view](https://github.com/Gachi707/library-management-system/blob/main/client/.env) |
+| `client/src/components/GenreFilter.jsx` | [view](https://github.com/Gachi707/library-management-system/blob/main/client/src/components/GenreFilter.jsx) |
+| `client/src/components/BookCover.jsx` | [view](https://github.com/Gachi707/library-management-system/blob/main/client/src/components/BookCover.jsx) |
+| `client/src/pages/NotFound.jsx` | [view](https://github.com/Gachi707/library-management-system/blob/main/client/src/pages/NotFound.jsx) |
 
 ### API test results (Newman, run against the live API)
 
@@ -256,516 +270,513 @@ Library Management System API
 
 ### Source code
 
-#### api/src/main.ts
+#### client/src/main.jsx
 
-```ts
-import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
-import { AppModule } from './app.module';
+```text
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
+import App from './App.jsx';
+import './index.css';
 
-async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
-  app.enableCors();
-  await app.listen(process.env.PORT ?? 3000);
+// BrowserRouter wraps the whole app once, so useParams, useNavigate and <Link>
+// work anywhere in the component tree.
+createRoot(document.getElementById('root')).render(
+  <StrictMode>
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
+  </StrictMode>,
+);
+```
+
+#### client/src/App.jsx
+
+```text
+import { Link, Route, Routes } from 'react-router-dom';
+import HomePage from './pages/HomePage.jsx';
+import BookDetail from './pages/BookDetail.jsx';
+import NotFound from './pages/NotFound.jsx';
+
+function App() {
+  return (
+    <div className="min-h-screen bg-slate-50 text-slate-900">
+      <header className="border-b border-slate-200 bg-white">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
+          <Link to="/" className="text-xl font-bold text-indigo-700">
+            Library Catalog
+          </Link>
+          <span className="hidden text-sm text-slate-500 sm:block">
+            Browse and search our collection
+          </span>
+        </div>
+      </header>
+
+      <main className="mx-auto max-w-6xl px-4 py-8">
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/books/:id" element={<BookDetail />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </main>
+    </div>
+  );
 }
-bootstrap();
+
+export default App;
 ```
 
-#### api/src/genres/genres.controller.ts
+#### client/src/pages/HomePage.jsx
 
-```ts
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  ParseIntPipe,
-  Patch,
-  Post,
-  UseGuards,
-} from '@nestjs/common';
-import { GenresService } from './genres.service';
-import { CreateGenreDto } from './dto/create-genre.dto';
-import { UpdateGenreDto } from './dto/update-genre.dto';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { RolesGuard } from '../auth/roles.guard';
-import { Roles } from '../auth/roles.decorator';
+```text
+import { useState } from 'react';
+import BookGrid from '../components/BookGrid.jsx';
+import SearchBar from '../components/SearchBar.jsx';
+import GenreFilter from '../components/GenreFilter.jsx';
 
-@Controller('genres')
-export class GenresController {
-  constructor(private genresService: GenresService) {}
+function HomePage() {
+  // The shared filter state lives here, in the lowest common parent of every
+  // component that needs it. Children read it through props and report changes
+  // upward through callback props ("lifting state up").
+  const [search, setSearch] = useState('');
+  const [genreId, setGenreId] = useState('');
+  const [sortBy, setSortBy] = useState('title');
 
-  @Post()
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('LIBRARIAN')
-  create(@Body() dto: CreateGenreDto) {
-    return this.genresService.create(dto);
-  }
+  return (
+    <div>
+      <h1 className="text-2xl font-bold">Book catalog</h1>
+      <p className="mt-1 text-slate-600">Search by title or author, or filter by genre.</p>
 
-  @Get()
-  findAll() {
-    return this.genresService.findAll();
-  }
+      <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+        <SearchBar onSearch={setSearch} />
+        <GenreFilter value={genreId} onChange={setGenreId} />
+        <div>
+          <label htmlFor="sort-by" className="sr-only">
+            Sort books
+          </label>
+          <select
+            id="sort-by"
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm"
+          >
+            <option value="title">Sort by title</option>
+            <option value="author">Sort by author</option>
+          </select>
+        </div>
+      </div>
 
-  @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.genresService.findOne(id);
-  }
-
-  @Patch(':id')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('LIBRARIAN')
-  update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateGenreDto) {
-    return this.genresService.update(id, dto);
-  }
-
-  @Delete(':id')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('LIBRARIAN')
-  remove(@Param('id', ParseIntPipe) id: number) {
-    return this.genresService.remove(id);
-  }
+      <div className="mt-6">
+        <BookGrid genreId={genreId} search={search} sortBy={sortBy} />
+      </div>
+    </div>
+  );
 }
+
+export default HomePage;
 ```
 
-#### api/src/genres/genres.service.ts
+#### client/src/components/BookGrid.jsx
 
-```ts
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
-import { PrismaService } from '../prisma/prisma.service';
-import { CreateGenreDto } from './dto/create-genre.dto';
-import { UpdateGenreDto } from './dto/update-genre.dto';
+```text
+import { useEffect, useMemo, useState } from 'react';
+import axios from 'axios';
+import BookCard from './BookCard.jsx';
 
-@Injectable()
-export class GenresService {
-  constructor(private prisma: PrismaService) {}
+const API = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
+const GRID = 'grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4';
+const SKELETON_IDS = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
 
-  async create(dto: CreateGenreDto) {
-    try {
-      return await this.prisma.genre.create({ data: dto });
-    } catch (e) {
-      this.rethrow(e);
-    }
-  }
-
-  findAll() {
-    return this.prisma.genre.findMany({ orderBy: { name: 'asc' } });
-  }
-
-  async findOne(id: number) {
-    const genre = await this.prisma.genre.findUnique({
-      where: { id },
-      include: { _count: { select: { books: true } } },
-    });
-    if (!genre) throw new NotFoundException(`Genre ${id} not found`);
-    return genre;
-  }
-
-  async update(id: number, dto: UpdateGenreDto) {
-    await this.findOne(id);
-    try {
-      return await this.prisma.genre.update({ where: { id }, data: dto });
-    } catch (e) {
-      this.rethrow(e);
-    }
-  }
-
-  async remove(id: number) {
-    await this.findOne(id);
-    const inUse = await this.prisma.book.count({ where: { genreId: id } });
-    if (inUse > 0) {
-      throw new ConflictException(`Genre ${id} still has ${inUse} book(s)`);
-    }
-    return this.prisma.genre.delete({ where: { id } });
-  }
-
-  private rethrow(e: unknown): never {
-    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
-      throw new ConflictException('A genre with that name or slug already exists');
-    }
-    throw e;
-  }
+// Skeleton loading UI (stretch task): grey placeholder cards while the books load
+function SkeletonGrid() {
+  return (
+    <div role="status" aria-live="polite">
+      <span className="sr-only">Loading books...</span>
+      <div className={GRID}>
+        {SKELETON_IDS.map((id) => (
+          <div key={`skeleton-${id}`} className="h-64 animate-pulse rounded-xl bg-slate-200" />
+        ))}
+      </div>
+    </div>
+  );
 }
-```
 
-#### api/src/genres/genres.module.ts
+function BookGrid({ genreId = '', search = '', sortBy = 'title' }) {
+  const [books, setBooks] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [attempt, setAttempt] = useState(0); // bump this to try the request again
 
-```ts
-import { Module } from '@nestjs/common';
-import { PrismaModule } from '../prisma/prisma.module';
-import { GenresController } from './genres.controller';
-import { GenresService } from './genres.service';
+  // Refetch whenever the genre filter or the search text changes
+  useEffect(() => {
+    const controller = new AbortController();
+    setLoading(true);
+    setError('');
 
-@Module({
-  imports: [PrismaModule],
-  controllers: [GenresController],
-  providers: [GenresService],
-})
-export class GenresModule {}
-```
-
-#### api/src/books/dto/create-book.dto.ts
-
-```ts
-import { IsInt, IsNotEmpty, IsOptional, IsString, Min } from 'class-validator';
-
-export class CreateBookDto {
-  @IsString() @IsNotEmpty() title: string;
-  @IsString() @IsNotEmpty() author: string;
-  @IsString() @IsNotEmpty() isbn: string;
-  @IsString() @IsNotEmpty() description: string;
-  @IsOptional() @IsString() coverImage?: string;
-  @IsInt() @Min(1) totalCopies: number;
-  @IsInt() genreId: number;
-}
-```
-
-#### api/src/books/books.controller.ts
-
-```ts
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  ParseIntPipe,
-  Patch,
-  Post,
-  Query,
-  UseGuards,
-} from '@nestjs/common';
-import { BooksService } from './books.service';
-import { CreateBookDto } from './dto/create-book.dto';
-import { UpdateBookDto } from './dto/update-book.dto';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { RolesGuard } from '../auth/roles.guard';
-import { Roles } from '../auth/roles.decorator';
-
-@Controller('books')
-export class BooksController {
-  constructor(private booksService: BooksService) {}
-
-  @Get()
-  findAll(
-    @Query('genreId') genreId?: string,
-    @Query('search') search?: string,
-    @Query('page') page?: string,
-    @Query('limit') limit?: string,
-  ) {
-    return this.booksService.findAll(genreId, search, Number(page) || 1, Number(limit) || 20);
-  }
-
-  @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.booksService.findOne(id);
-  }
-
-  @Post()
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('LIBRARIAN')
-  create(@Body() dto: CreateBookDto) {
-    return this.booksService.create(dto);
-  }
-
-  @Patch(':id')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('LIBRARIAN')
-  update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateBookDto) {
-    return this.booksService.update(id, dto);
-  }
-
-  @Delete(':id')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('LIBRARIAN')
-  remove(@Param('id', ParseIntPipe) id: number) {
-    return this.booksService.remove(id);
-  }
-}
-```
-
-#### api/src/books/books.service.ts
-
-```ts
-import {
-  BadRequestException,
-  ConflictException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
-import { Prisma } from '@prisma/client';
-import { PrismaService } from '../prisma/prisma.service';
-import { CreateBookDto } from './dto/create-book.dto';
-import { UpdateBookDto } from './dto/update-book.dto';
-
-@Injectable()
-export class BooksService {
-  constructor(private prisma: PrismaService) {}
-
-  findAll(genreId?: string, search?: string, page = 1, limit = 20) {
-    if (genreId !== undefined && Number.isNaN(Number(genreId))) {
-      throw new BadRequestException('genreId must be a number');
-    }
-    const take = Math.min(Math.max(Number(limit), 1), 100);
-    const skip = (Math.max(Number(page), 1) - 1) * take;
-
-    return this.prisma.book.findMany({
-      // Build the where clause from whichever filters were supplied
-      where: {
-        ...(genreId && { genreId: Number(genreId) }),
-        ...(search && {
-          OR: [
-            { title: { contains: search, mode: 'insensitive' } },
-            { author: { contains: search, mode: 'insensitive' } },
-          ],
-        }),
-      },
-      include: { genre: true },
-      orderBy: { title: 'asc' }, // a stable order keeps pages consistent
-      skip, // pagination: skip the earlier pages...
-      take, // ...and return one page
-    });
-  }
-
-  async findOne(id: number) {
-    const book = await this.prisma.book.findUnique({
-      where: { id },
-      include: { genre: true },
-    });
-    if (!book) throw new NotFoundException(`Book ${id} not found`);
-    return book;
-  }
-
-  async create(dto: CreateBookDto) {
-    try {
-      return await this.prisma.book.create({
-        // a new book starts with every copy available
-        data: { ...dto, availableCopies: dto.totalCopies },
-        include: { genre: true },
-      });
-    } catch (e) {
-      this.rethrow(e);
-    }
-  }
-
-  async update(id: number, dto: UpdateBookDto) {
-    const book = await this.findOne(id);
-    const data: Prisma.BookUncheckedUpdateInput = { ...dto };
-
-    // Keep availableCopies in step when the total changes
-    if (dto.totalCopies !== undefined) {
-      const available = book.availableCopies + (dto.totalCopies - book.totalCopies);
-      if (available < 0) {
-        throw new BadRequestException(
-          'totalCopies cannot be lower than the number of copies currently borrowed',
+    axios
+      .get(`${API}/books`, {
+        // axios leaves out params that are undefined, so empty filters are not sent
+        params: { genreId: genreId || undefined, search: search || undefined, limit: 100 },
+        signal: controller.signal,
+      })
+      .then((res) => setBooks(res.data))
+      .catch((err) => {
+        if (axios.isCancel(err)) return; // a newer request replaced this one
+        setBooks([]);
+        setError(
+          err.response
+            ? 'The server could not load the books. Please try again.'
+            : 'Could not reach the library server. Is the API running?',
         );
-      }
-      data.availableCopies = available;
-    }
-
-    try {
-      return await this.prisma.book.update({
-        where: { id },
-        data,
-        include: { genre: true },
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
       });
-    } catch (e) {
-      this.rethrow(e);
-    }
+
+    // Cleanup: cancel the old request so a slow, outdated response can never overwrite a newer one
+    return () => controller.abort();
+  }, [genreId, search, attempt]);
+
+  // Sorting is done in the browser, so changing it needs no new request (stretch task)
+  const sorted = useMemo(
+    () => [...books].sort((a, b) => String(a[sortBy] ?? '').localeCompare(String(b[sortBy] ?? ''))),
+    [books, sortBy],
+  );
+
+  if (loading) return <SkeletonGrid />;
+
+  if (error) {
+    return (
+      <div role="alert" className="rounded-xl border border-rose-200 bg-rose-50 p-6 text-center">
+        <p className="font-medium text-rose-800">{error}</p>
+        <button
+          type="button"
+          onClick={() => setAttempt((n) => n + 1)}
+          className="mt-3 rounded-lg bg-rose-600 px-4 py-2 text-sm font-medium text-white hover:bg-rose-700"
+        >
+          Try again
+        </button>
+      </div>
+    );
   }
 
-  async remove(id: number) {
-    await this.findOne(id);
-    return this.prisma.book.delete({ where: { id } });
+  if (books.length === 0) {
+    return (
+      <div className="rounded-xl border border-dashed border-slate-300 bg-white p-10 text-center">
+        <p className="font-medium">No books found</p>
+        <p className="mt-1 text-sm text-slate-600">Try a different search or choose another genre.</p>
+      </div>
+    );
   }
 
-  private rethrow(e: unknown): never {
-    if (e instanceof Prisma.PrismaClientKnownRequestError) {
-      if (e.code === 'P2002') throw new ConflictException('A book with that ISBN already exists');
-      if (e.code === 'P2003') throw new BadRequestException('That genreId does not exist');
-    }
-    throw e;
-  }
+  return (
+    <div>
+      <p className="mb-3 text-sm text-slate-600" aria-live="polite">
+        Showing {books.length} {books.length === 1 ? 'book' : 'books'}
+      </p>
+      <div className={GRID}>
+        {sorted.map((book) => (
+          <BookCard key={book.id} book={book} />
+        ))}
+      </div>
+    </div>
+  );
 }
+
+export default BookGrid;
 ```
 
-#### api/src/auth/auth.controller.ts
+#### client/src/components/BookCard.jsx
 
-```ts
-import { Body, Controller, HttpCode, Post } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { LoginDto } from './dto/login.dto';
-import { RegisterDto } from './dto/register.dto';
+```text
+import { Link } from 'react-router-dom';
+import BookCover from './BookCover.jsx';
 
-@Controller('auth')
-export class AuthController {
-  constructor(private authService: AuthService) {}
+function BookCard({ book }) {
+  const inStock = book.availableCopies > 0;
 
-  @Post('register')
-  register(@Body() dto: RegisterDto) {
-    return this.authService.register(dto);
-  }
-
-  @Post('login')
-  @HttpCode(200)
-  login(@Body() dto: LoginDto) {
-    return this.authService.login(dto);
-  }
+  return (
+    <Link
+      to={`/books/${book.id}`}
+      className="group flex flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition hover:shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+    >
+      <BookCover book={book} />
+      <div className="flex flex-1 flex-col gap-1 p-4">
+        <h3 className="line-clamp-2 font-semibold group-hover:text-indigo-700">{book.title}</h3>
+        <p className="text-sm text-slate-600">by {book.author}</p>
+        <div className="mt-auto flex items-center justify-between gap-2 pt-3 text-xs">
+          <span className="rounded-full bg-indigo-50 px-2 py-1 font-medium text-indigo-700">
+            {book.genre?.name ?? 'Uncategorised'}
+          </span>
+          <span className={inStock ? 'font-medium text-emerald-700' : 'font-medium text-rose-700'}>
+            {inStock ? `${book.availableCopies} of ${book.totalCopies} available` : 'All copies borrowed'}
+          </span>
+        </div>
+      </div>
+    </Link>
+  );
 }
+
+export default BookCard;
 ```
 
-#### api/src/auth/auth.service.ts
+#### client/src/components/SearchBar.jsx
 
-```ts
-import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import * as bcrypt from 'bcryptjs'; // bcrypt hashing (pure-JS build, same algorithm)
-import { PrismaService } from '../prisma/prisma.service';
-import { LoginDto } from './dto/login.dto';
-import { RegisterDto } from './dto/register.dto';
+```text
+import { useEffect, useState } from 'react';
 
-@Injectable()
-export class AuthService {
-  constructor(
-    private prisma: PrismaService,
-    private jwt: JwtService,
-  ) {}
+function SearchBar({ onSearch, delay = 400 }) {
+  const [query, setQuery] = useState('');
 
-  async register(dto: RegisterDto) {
-    const email = dto.email.toLowerCase();
-    const existing = await this.prisma.user.findUnique({ where: { email } });
-    if (existing) throw new ConflictException('Email already registered');
+  useEffect(() => {
+    // Debounce: schedule the search after a pause in typing...
+    const timer = setTimeout(() => onSearch(query.trim()), delay);
+    // ...and cancel the previous timer on every new keystroke (the cleanup runs first)
+    return () => clearTimeout(timer);
+  }, [query, delay, onSearch]);
 
-    // Never store the plain password: hash it first
-    const hashed = await bcrypt.hash(dto.password, 10);
-    const user = await this.prisma.user.create({
-      data: { email, password: hashed },
-    });
-    return this.issueToken(user);
-  }
-
-  async login(dto: LoginDto) {
-    const user = await this.prisma.user.findUnique({
-      where: { email: dto.email.toLowerCase() },
-    });
-    if (!user || !(await bcrypt.compare(dto.password, user.password))) {
-      // Same message for "no such user" and "wrong password" on purpose
-      throw new UnauthorizedException('Invalid credentials');
-    }
-    return this.issueToken(user);
-  }
-
-  // Issuing a token happens here (once, at login/register);
-  // verifying it happens later in JwtStrategy on every protected request.
-  private issueToken(user: { id: number; role: string }) {
-    return { access_token: this.jwt.sign({ sub: user.id, role: user.role }) };
-  }
+  return (
+    <div className="flex-1">
+      <label htmlFor="book-search" className="sr-only">
+        Search books by title or author
+      </label>
+      <input
+        id="book-search"
+        type="search"
+        placeholder="Search by title or author..."
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+      />
+    </div>
+  );
 }
+
+export default SearchBar;
 ```
 
-#### api/src/auth/auth.module.ts
+#### client/src/pages/BookDetail.jsx
 
-```ts
-import { Module } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { JwtModule } from '@nestjs/jwt';
-import { PassportModule } from '@nestjs/passport';
-import { PrismaModule } from '../prisma/prisma.module';
-import { AuthController } from './auth.controller';
-import { AuthService } from './auth.service';
-import { JwtStrategy } from './jwt.strategy';
+```text
+import { useEffect, useState } from 'react';
+import { Link, useParams } from 'react-router-dom';
+import axios from 'axios';
+import BookCover from '../components/BookCover.jsx';
 
-@Module({
-  imports: [
-    PrismaModule,
-    PassportModule,
-    JwtModule.registerAsync({
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        secret: config.getOrThrow<string>('JWT_SECRET'),
-        signOptions: { expiresIn: 60 * 60 * 24 }, // 1 day, in seconds
-      }),
-    }),
-  ],
-  controllers: [AuthController],
-  providers: [AuthService, JwtStrategy],
-})
-export class AuthModule {}
-```
+const API = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
 
-#### api/src/auth/jwt.strategy.ts
-
-```ts
-import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { PassportStrategy } from '@nestjs/passport';
-import { ExtractJwt, Strategy } from 'passport-jwt';
-
-@Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(config: ConfigService) {
-    super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      ignoreExpiration: false,
-      secretOrKey: config.getOrThrow<string>('JWT_SECRET'),
-    });
-  }
-
-  // Whatever this returns becomes req.user for the rest of the request
-  async validate(payload: { sub: number; role: string }) {
-    return { userId: payload.sub, role: payload.role };
-  }
+function BackLink() {
+  return (
+    <Link to="/" className="text-sm font-medium text-indigo-700 hover:underline">
+      &larr; Back to catalog
+    </Link>
+  );
 }
-```
 
-#### api/src/auth/jwt-auth.guard.ts
+function BookDetail() {
+  const { id } = useParams(); // the :id segment from the URL
+  const [book, setBook] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(''); // '', 'notfound' or 'network'
 
-```ts
-import { Injectable } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
+  useEffect(() => {
+    const controller = new AbortController();
+    setLoading(true);
+    setError('');
+    setBook(null);
 
-@Injectable()
-export class JwtAuthGuard extends AuthGuard('jwt') {}
-```
+    axios
+      .get(`${API}/books/${id}`, { signal: controller.signal })
+      .then((res) => setBook(res.data))
+      .catch((err) => {
+        if (axios.isCancel(err)) return;
+        const status = err.response?.status;
+        setError(status === 404 || status === 400 ? 'notfound' : 'network');
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
+      });
 
-#### api/src/auth/roles.decorator.ts
+    return () => controller.abort();
+  }, [id]);
 
-```ts
-import { SetMetadata } from '@nestjs/common';
-import type { Role } from '@prisma/client';
-
-export const ROLES_KEY = 'roles';
-
-// Tags a route with the role(s) allowed to call it; RolesGuard reads the tag back
-export const Roles = (...roles: Role[]) => SetMetadata(ROLES_KEY, roles);
-```
-
-#### api/src/auth/roles.guard.ts
-
-```ts
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
-import { Reflector } from '@nestjs/core';
-import { ROLES_KEY } from './roles.decorator';
-
-@Injectable()
-export class RolesGuard implements CanActivate {
-  constructor(private reflector: Reflector) {}
-
-  canActivate(context: ExecutionContext): boolean {
-    const required = this.reflector.getAllAndOverride<string[]>(ROLES_KEY, [
-      context.getHandler(),
-      context.getClass(),
-    ]);
-    if (!required || required.length === 0) return true;
-
-    // req.user was set by JwtAuthGuard, which must run before this guard
-    const { user } = context.switchToHttp().getRequest();
-    return !!user && required.includes(user.role);
+  if (loading) {
+    return (
+      <div role="status" aria-live="polite">
+        <span className="sr-only">Loading book...</span>
+        <div className="h-96 animate-pulse rounded-xl bg-slate-200" />
+      </div>
+    );
   }
+
+  if (error) {
+    return (
+      <div role="alert" className="rounded-xl border border-slate-200 bg-white p-8 text-center">
+        <p className="font-medium">
+          {error === 'notfound'
+            ? 'Book not found'
+            : 'Could not reach the library server. Is the API running?'}
+        </p>
+        <div className="mt-4">
+          <BackLink />
+        </div>
+      </div>
+    );
+  }
+
+  const inStock = book.availableCopies > 0;
+
+  return (
+    <article>
+      <BackLink />
+      <div className="mt-4 grid gap-8 md:grid-cols-3">
+        <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+          <BookCover book={book} className="h-72" />
+        </div>
+
+        <div className="md:col-span-2">
+          <span className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-medium text-indigo-700">
+            {book.genre?.name ?? 'Uncategorised'}
+          </span>
+          <h1 className="mt-3 text-3xl font-bold">{book.title}</h1>
+          <p className="mt-1 text-lg text-slate-600">by {book.author}</p>
+
+          <p
+            className={`mt-4 inline-block rounded-lg px-3 py-1 text-sm font-medium ${
+              inStock ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'
+            }`}
+          >
+            {inStock
+              ? `${book.availableCopies} of ${book.totalCopies} copies available`
+              : 'All copies are currently borrowed'}
+          </p>
+
+          <h2 className="mt-6 font-semibold">About this book</h2>
+          <p className="mt-1 text-slate-700">{book.description}</p>
+
+          <dl className="mt-6 grid grid-cols-2 gap-4 text-sm sm:grid-cols-3">
+            <div>
+              <dt className="text-slate-500">ISBN</dt>
+              <dd className="font-medium">{book.isbn}</dd>
+            </div>
+            <div>
+              <dt className="text-slate-500">Total copies</dt>
+              <dd className="font-medium">{book.totalCopies}</dd>
+            </div>
+            <div>
+              <dt className="text-slate-500">Available now</dt>
+              <dd className="font-medium">{book.availableCopies}</dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+    </article>
+  );
 }
+
+export default BookDetail;
+```
+
+#### client/.env
+
+```text
+VITE_API_URL=http://localhost:3000
+```
+
+#### client/src/components/GenreFilter.jsx
+
+```text
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+
+const API = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
+
+function GenreFilter({ value, onChange }) {
+  const [genres, setGenres] = useState([]);
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    axios
+      .get(`${API}/genres`, { signal: controller.signal })
+      .then((res) => setGenres(res.data))
+      .catch((err) => {
+        if (!axios.isCancel(err)) setFailed(true);
+      });
+    return () => controller.abort();
+  }, []);
+
+  return (
+    <div>
+      <label htmlFor="genre-filter" className="sr-only">
+        Filter by genre
+      </label>
+      <select
+        id="genre-filter"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm"
+      >
+        <option value="">All genres</option>
+        {genres.map((g) => (
+          <option key={g.id} value={g.id}>
+            {g.name}
+          </option>
+        ))}
+      </select>
+      {failed && <p className="mt-1 text-xs text-rose-700">Genres could not be loaded.</p>}
+    </div>
+  );
+}
+
+export default GenreFilter;
+```
+
+#### client/src/components/BookCover.jsx
+
+```text
+// Shows the book's cover image, or a coloured placeholder when it has none
+function BookCover({ book, className = 'h-40' }) {
+  if (book.coverImage) {
+    return (
+      <img
+        src={book.coverImage}
+        alt={`Cover of ${book.title}`}
+        className={`${className} w-full object-cover`}
+      />
+    );
+  }
+  return (
+    <div
+      aria-hidden="true"
+      className={`${className} flex w-full items-center justify-center bg-gradient-to-br from-indigo-500 to-violet-600 text-5xl font-bold text-white`}
+    >
+      {book.title.charAt(0).toUpperCase()}
+    </div>
+  );
+}
+
+export default BookCover;
+```
+
+#### client/src/pages/NotFound.jsx
+
+```text
+import { Link } from 'react-router-dom';
+
+function NotFound() {
+  return (
+    <div className="rounded-xl border border-slate-200 bg-white p-10 text-center">
+      <h1 className="text-2xl font-bold">Page not found</h1>
+      <p className="mt-2 text-slate-600">That page does not exist.</p>
+      <Link to="/" className="mt-4 inline-block text-sm font-medium text-indigo-700 hover:underline">
+        &larr; Back to catalog
+      </Link>
+    </div>
+  );
+}
+
+export default NotFound;
 ```
 
 <!-- REQUIRED-FILES:END -->

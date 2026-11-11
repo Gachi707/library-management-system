@@ -8,7 +8,7 @@ set -uo pipefail
 cd "$(dirname "$0")/.."
 
 REPO="Gachi707/library-management-system"
-RAW="https://raw.githubusercontent.com/$REPO/main"
+RAW="${RAW_BASE:-https://raw.githubusercontent.com/$REPO/main}"
 FAILS=0
 pass() { echo "  PASS  $1"; }
 fail() { echo "  FAIL  $1"; FAILS=$((FAILS + 1)); }
@@ -54,6 +54,23 @@ check_file api/src/auth/jwt-auth.guard.ts "AuthGuard\('jwt'\)"
 check_file api/src/auth/roles.decorator.ts 'SetMetadata'
 check_file api/src/auth/roles.guard.ts 'user.role' 'Reflector'
 check_file docs/postman_collection.json '"item"' 'auth/login' '/books'
+
+echo ""
+echo "   Week 3 (React client)"
+check_file client/src/main.jsx 'BrowserRouter' '<App'
+check_file client/src/App.jsx 'Routes' 'path="/"' '/books/:id'
+check_file client/src/pages/HomePage.jsx 'BookGrid' 'SearchBar' 'GenreFilter' 'useState'
+check_file client/src/components/BookGrid.jsx 'axios' 'VITE_API_URL' 'genreId' 'search' 'Loading' 'No books found'
+check_file client/src/components/BookCard.jsx 'book' 'Link'
+check_file client/src/components/SearchBar.jsx 'setTimeout' 'clearTimeout' 'onSearch'
+check_file client/src/pages/BookDetail.jsx 'useParams' 'axios' '/books/'
+check_file client/.env 'VITE_API_URL'
+out=$(curl -s -L "$RAW/client/.env?cb=$RANDOM$RANDOM")
+if grep -vE '^[[:space:]]*(#.*)?$' <<<"$out" | grep -qvE '^VITE_API_URL='; then
+  fail "client/.env contains something besides VITE_API_URL (it is public: never put secrets in it)"
+else
+  pass "client/.env holds only VITE_API_URL"
+fi
 
 out=$(curl -s -L -w $'\n%{http_code}' "$RAW/docs/newman-results.txt?cb=$RANDOM$RANDOM")
 code="${out##*$'\n'}"; body="${out%$'\n'*}"
