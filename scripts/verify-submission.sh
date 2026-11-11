@@ -65,6 +65,8 @@ check_file client/src/components/BookCard.jsx 'book' 'Link'
 check_file client/src/components/SearchBar.jsx 'setTimeout' 'clearTimeout' 'onSearch'
 check_file client/src/pages/BookDetail.jsx 'useParams' 'axios' '/books/'
 check_file client/.env 'VITE_API_URL'
+check_file client/README.md 'BrowserRouter' 'useParams' 'setTimeout' 'clearTimeout' 'VITE_API_URL' 'GenreFilter'
+check_file README.md '## Client \(Week 3\)' '#### client/src/App.jsx' '#### client/src/components/SearchBar.jsx'
 out=$(curl -s -L "$RAW/client/.env?cb=$RANDOM$RANDOM")
 if grep -vE '^[[:space:]]*(#.*)?$' <<<"$out" | grep -qvE '^VITE_API_URL='; then
   fail "client/.env contains something besides VITE_API_URL (it is public: never put secrets in it)"
