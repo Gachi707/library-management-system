@@ -1,17 +1,12 @@
-# Files listed here are copied into the README by scripts/update-readme.sh
+# Files listed here are copied into the ROOT README by scripts/update-readme.sh
+# (the complete client source, including Week 3 and the supporting files, is embedded in client/README.md)
 # One path per line (globs allowed). Lines starting with # are ignored.
 
-# Week 3 required files
-client/src/main.jsx
+# Week 4 required files
+client/src/context/ReadingListContext.jsx
 client/src/App.jsx
-client/src/pages/HomePage.jsx
-client/src/components/BookGrid.jsx
-client/src/components/BookCard.jsx
-client/src/components/SearchBar.jsx
-client/src/pages/BookDetail.jsx
-client/.env
-
-# Week 3 extra files
-client/src/components/GenreFilter.jsx
-client/src/components/BookCover.jsx
-client/src/pages/NotFound.jsx
+client/src/pages/LoginPage.jsx
+client/src/pages/RegisterPage.jsx
+client/src/components/ProtectedRoute.jsx
+client/src/pages/SpaceBookingPage.jsx
+client/src/components/Navbar.jsx

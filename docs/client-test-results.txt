@@ -1,0 +1,77 @@
+Client test report - 2026-11-15 13:29 UTC
+Command: cd client && npm test
+
+
+ RUN  v5.1.0 (client folder)
+
+ ✓ src/__tests__/readingList.test.jsx > readingListReducer (ADD_BOOK / REMOVE_BOOK / CLEAR_LIST) > ADD_BOOK adds a book 185ms
+ ✓ src/__tests__/readingList.test.jsx > readingListReducer (ADD_BOOK / REMOVE_BOOK / CLEAR_LIST) > ADD_BOOK ignores a book that is already on the list 5ms
+ ✓ src/__tests__/readingList.test.jsx > readingListReducer (ADD_BOOK / REMOVE_BOOK / CLEAR_LIST) > REMOVE_BOOK removes by id and leaves the others 2ms
+ ✓ src/__tests__/readingList.test.jsx > readingListReducer (ADD_BOOK / REMOVE_BOOK / CLEAR_LIST) > CLEAR_LIST empties the list 1ms
+ ✓ src/__tests__/readingList.test.jsx > readingListReducer (ADD_BOOK / REMOVE_BOOK / CLEAR_LIST) > an unknown action leaves the state alone 1ms
+ ✓ src/__tests__/readingList.test.jsx > readingListReducer (ADD_BOOK / REMOVE_BOOK / CLEAR_LIST) > never changes the old state (it returns a new array) 1ms
+ ✓ src/__tests__/auth.test.jsx > parseToken > reads the role and id from a JWT 312ms
+ ✓ src/__tests__/auth.test.jsx > parseToken > returns null for garbage 7ms
+ ✓ src/__tests__/catalog.test.jsx > Week 3 catalog still works (regression) > shows a loading skeleton, then the books 636ms
+ ✓ src/__tests__/readingList.test.jsx > ReadingListProvider: persisted to and restored from localStorage > saves every change to localStorage 564ms
+ ✓ src/__tests__/readingList.test.jsx > ReadingListProvider: persisted to and restored from localStorage > keeps only what the list needs, not the whole book record 143ms
+ ✓ src/__tests__/readingList.test.jsx > ReadingListProvider: persisted to and restored from localStorage > restores the saved list on the first render (a page refresh) 29ms
+ ✓ src/__tests__/readingList.test.jsx > ReadingListProvider: persisted to and restored from localStorage > survives a refresh: unmount, mount again, the book is still there 110ms
+ ✓ src/__tests__/readingList.test.jsx > ReadingListProvider: persisted to and restored from localStorage > starts empty instead of crashing when storage holds corrupt JSON 167ms
+ ✓ src/__tests__/readingList.test.jsx > ReadingListProvider: persisted to and restored from localStorage > starts empty instead of crashing when storage holds a value that is not a list 12ms
+ ✓ src/__tests__/readingList.test.jsx > ReadingListProvider: persisted to and restored from localStorage > starts empty instead of crashing when storage holds null 8ms
+ ✓ src/__tests__/readingList.test.jsx > ReadingListProvider: persisted to and restored from localStorage > CLEAR_LIST empties the saved copy too 62ms
+ ✓ src/__tests__/readingList.test.jsx > ReadingListProvider: persisted to and restored from localStorage > useReadingList outside the provider explains the mistake 39ms
+ ✓ src/__tests__/auth.test.jsx > Login page (controlled form posting to /auth/login) > the inputs are controlled: they show exactly what is typed 1582ms
+ ✓ src/__tests__/readingList.test.jsx > reading list in the whole app > add from the catalog: the Navbar count updates without any props passed down 667ms
+ ✓ src/__tests__/readingList.test.jsx > reading list in the whole app > clicking the button again removes the book 242ms
+ ✓ src/__tests__/auth.test.jsx > Login page (controlled form posting to /auth/login) > the submit button stays disabled until both fields are filled 715ms
+ ✓ src/__tests__/readingList.test.jsx > reading list in the whole app > the list is still there after a page refresh 349ms
+ ✓ src/__tests__/catalog.test.jsx > Week 3 catalog still works (regression) > live search, with the genre filter, refetches with query params 1973ms
+ ✓ src/__tests__/catalog.test.jsx > Week 3 catalog still works (regression) > empty and error states, and Try again 662ms
+ ✓ src/__tests__/auth.test.jsx > Login page (controlled form posting to /auth/login) > posts the form to /auth/login, stores the returned JWT in localStorage and goes home 906ms
+ ✓ src/__tests__/readingList.test.jsx > reading list in the whole app > the Reading list page shows the saved books, with Remove and Clear 991ms
+ ✓ src/__tests__/readingList.test.jsx > reading list in the whole app > works for guests: no login needed for the reading list 57ms
+ ✓ src/__tests__/catalog.test.jsx > Week 3 catalog still works (regression) > error state when the API is unreachable, and Try again recovers 271ms
+ ✓ src/__tests__/readingList.test.jsx > reading list in the whole app > the detail page has the button too, and it shares the same list 158ms
+ ✓ src/__tests__/catalog.test.jsx > Week 3 catalog still works (regression) > book detail page, and Book not found 177ms
+ ✓ src/__tests__/catalog.test.jsx > Week 3 catalog still works (regression) > a card is one link to the detail page, and a book with no copies left says so 105ms
+ ✓ src/__tests__/catalog.test.jsx > SearchBar debounce (fake timers) > calls onSearch once, 400ms after the LAST keystroke 51ms
+ ✓ src/__tests__/auth.test.jsx > Login page (controlled form posting to /auth/login) > does not reload the page: e.preventDefault() is called 712ms
+ ✓ src/__tests__/catalog.test.jsx > SearchBar debounce (fake timers) > typing a word fires ONE search request, not one per letter 634ms
+ ✓ src/__tests__/catalog.test.jsx > apiError helper > joins the API validation messages 3ms
+ ✓ src/__tests__/auth.test.jsx > Login page (controlled form posting to /auth/login) > wrong password (401): shows a clear message and stores nothing 634ms
+ ✓ src/__tests__/auth.test.jsx > Login page (controlled form posting to /auth/login) > API down: says so 531ms
+ ✓ src/__tests__/auth.test.jsx > Login page (controlled form posting to /auth/login) > validation errors (400) from the API are shown 208ms
+ ✓ src/__tests__/auth.test.jsx > Register page (controlled form posting to /auth/register) > posts only email and password, stores the returned JWT and signs the user in 665ms
+ ✓ src/__tests__/auth.test.jsx > Register page (controlled form posting to /auth/register) > mismatched passwords are caught in the browser: no request is sent 632ms
+ ✓ src/__tests__/auth.test.jsx > Register page (controlled form posting to /auth/register) > a password under 8 characters is caught in the browser 481ms
+ ✓ src/__tests__/auth.test.jsx > Register page (controlled form posting to /auth/register) > email already registered (409): friendly message 638ms
+ ✓ src/__tests__/auth.test.jsx > ProtectedRoute (/book-space) > no token: redirects to /login 35ms
+ ✓ src/__tests__/auth.test.jsx > ProtectedRoute (/book-space) > with a token: shows the booking form 51ms
+ ✓ src/__tests__/auth.test.jsx > ProtectedRoute (/book-space) > after logging in, sends the user back to the page they wanted 435ms
+ ✓ src/__tests__/auth.test.jsx > ProtectedRoute (/book-space) > an expired token counts as logged out, and is removed 30ms
+ ✓ src/__tests__/auth.test.jsx > ProtectedRoute (/book-space) > a malformed token counts as logged out 41ms
+ ✓ src/__tests__/auth.test.jsx > ProtectedRoute (/book-space) > a signed-in user visiting /login is sent away from it 72ms
+ ✓ src/__tests__/auth.test.jsx > Navbar > logged out: shows Log in and Sign up 147ms
+ ✓ src/__tests__/auth.test.jsx > Navbar > logged in: shows the role and Log out, which clears the token and goes home 173ms
+ ✓ src/__tests__/auth.test.jsx > Navbar > stays signed in after a refresh 129ms
+ ✓ src/__tests__/auth.test.jsx > Navbar > logging out of a protected page sends the user back to login when they return 178ms
+ ✓ src/__tests__/spaceBooking.test.jsx > Space booking form > has a study space dropdown with a hardcoded list, plus date, start and end time inputs 395ms
+ ✓ src/__tests__/spaceBooking.test.jsx > Space booking form > is a controlled form: the dropdown shows the chosen space 192ms
+ ✓ src/__tests__/spaceBooking.test.jsx > Space booking form > the date picker will not offer days in the past 249ms
+ ✓ src/__tests__/spaceBooking.test.jsx > Space booking form > an empty form shows an error for every field and does not submit 216ms
+ ✓ src/__tests__/spaceBooking.test.jsx > Space booking form > end time must be after the start time 854ms
+ ✓ src/__tests__/spaceBooking.test.jsx > Space booking form > a date in the past is rejected 1289ms
+ ✓ src/__tests__/spaceBooking.test.jsx > Space booking form > a valid form shows the request back to the user, and can be reset 1218ms
+ ✓ src/__tests__/spaceBooking.test.jsx > Space booking form > typing an end time equal to the start time is also rejected 1048ms
+
+ Test Files  4 passed (4)
+      Tests  61 passed (61)
+   Start at  16:27:39
+   Duration  90.37s (import 33%, environment 26%, transform 21%, tests 10%, setup 9%)
+
+Environment  jsdom was created 4 times · 60.04s total, 26% of tracked time
+             create it once per worker with pool: 'vmThreads' (keeps per-file isolation) or isolate: false (shares it across files)
+             learn more: https://vitest.dev/guide/improving-performance#test-environments
+

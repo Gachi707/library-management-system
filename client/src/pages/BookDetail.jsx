@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import axios from 'axios';
 import BookCover from '../components/BookCover.jsx';
+import ReadingListButton from '../components/ReadingListButton.jsx';
 
 const API = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
 
@@ -90,6 +91,10 @@ function BookDetail() {
               ? `${book.availableCopies} of ${book.totalCopies} copies available`
               : 'All copies are currently borrowed'}
           </p>
+
+          <div className="mt-4 max-w-xs">
+            <ReadingListButton book={book} />
+          </div>
 
           <h2 className="mt-6 font-semibold">About this book</h2>
           <p className="mt-1 text-slate-700">{book.description}</p>

@@ -66,7 +66,30 @@ check_file client/src/components/SearchBar.jsx 'setTimeout' 'clearTimeout' 'onSe
 check_file client/src/pages/BookDetail.jsx 'useParams' 'axios' '/books/'
 check_file client/.env 'VITE_API_URL'
 check_file client/README.md 'BrowserRouter' 'useParams' 'setTimeout' 'clearTimeout' 'VITE_API_URL' 'GenreFilter'
-check_file README.md '## Client \(Week 3\)' '#### client/src/App.jsx' '#### client/src/components/SearchBar.jsx'
+check_file README.md '## Client \(Weeks 3 and 4\)' '#### client/src/App.jsx' '#### client/src/context/ReadingListContext.jsx' '#### client/src/pages/LoginPage.jsx'
+
+echo ""
+echo "   Week 4 (state, forms and protected routes)"
+check_file client/src/context/ReadingListContext.jsx 'createContext' 'useReducer' 'ADD_BOOK' 'REMOVE_BOOK' 'CLEAR_LIST' 'localStorage'
+check_file client/src/App.jsx 'ReadingListProvider' 'ProtectedRoute' '/books/:id'
+check_file client/src/pages/LoginPage.jsx '/auth/login' 'useState' 'preventDefault' 'localStorage'
+check_file client/src/pages/RegisterPage.jsx '/auth/register' 'useState' 'preventDefault'
+check_file client/src/components/ProtectedRoute.jsx 'Navigate' '/login' 'token'
+check_file client/src/pages/SpaceBookingPage.jsx 'useState' 'preventDefault' 'spaceId' 'startTime' 'endTime' 'select'
+check_file client/src/components/Navbar.jsx 'ReadingListContext' 'readingList'
+check_file client/README.md 'ReadingListProvider' 'ProtectedRoute' 'ADD_BOOK'
+out=$(curl -s -L -w $'\n%{http_code}' "$RAW/docs/client-test-results.txt?cb=$RANDOM$RANDOM")
+code="${out##*$'\n'}"; body="${out%$'\n'*}"
+if [ "$code" = "200" ]; then
+  line=$(grep -E '^ *Tests ' <<<"$body" | head -1)
+  if [ -n "$line" ] && grep -q 'passed' <<<"$line" && ! grep -q 'failed' <<<"$line"; then
+    pass "docs/client-test-results.txt on GitHub shows every client test passing"
+  else
+    fail "docs/client-test-results.txt on GitHub shows FAILED tests (run: bash scripts/run-client-tests.sh, then update the README and push)"
+  fi
+else
+  echo "  note  docs/client-test-results.txt is not on GitHub (optional, but recommended)"
+fi
 out=$(curl -s -L "$RAW/client/.env?cb=$RANDOM$RANDOM")
 if grep -vE '^[[:space:]]*(#.*)?$' <<<"$out" | grep -qvE '^VITE_API_URL='; then
   fail "client/.env contains something besides VITE_API_URL (it is public: never put secrets in it)"
