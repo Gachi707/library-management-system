@@ -4,127 +4,329 @@ Library Management System API
 
 □ Auth
 └ Register patron
-  POST http://127.0.0.1:3000/auth/register [409 Conflict, 347B, 1183ms]
+  POST http://127.0.0.1:3000/auth/register [409 Conflict, 347B, 1390ms]
   √  201 with an access_token (or 409 if already registered)
 
 └ Login librarian
-  POST http://127.0.0.1:3000/auth/login [200 OK, 451B, 446ms]
+  POST http://127.0.0.1:3000/auth/login [200 OK, 451B, 501ms]
   √  Status is 200
   √  Response has access_token
 
 └ Login patron
-  POST http://127.0.0.1:3000/auth/login [200 OK, 447B, 362ms]
+  POST http://127.0.0.1:3000/auth/login [200 OK, 447B, 348ms]
   √  Status is 200
 
 └ Register - invalid body (400)
-  POST http://127.0.0.1:3000/auth/register [400 Bad Request, 410B, 15ms]
+  POST http://127.0.0.1:3000/auth/register [400 Bad Request, 410B, 10ms]
   √  Status is 400
 
 └ Login - wrong password (401)
-  POST http://127.0.0.1:3000/auth/login [401 Unauthorized, 350B, 367ms]
+  POST http://127.0.0.1:3000/auth/login [401 Unauthorized, 350B, 539ms]
   √  Status is 401
 
 □ Genres
 └ List genres
-  GET http://127.0.0.1:3000/genres [200 OK, 447B, 189ms]
+  GET http://127.0.0.1:3000/genres [200 OK, 447B, 266ms]
   √  Status is 200
 
 └ Get genre by id
-  GET http://127.0.0.1:3000/genres/1 [200 OK, 330B, 450ms]
+  GET http://127.0.0.1:3000/genres/1 [200 OK, 330B, 644ms]
   √  Status is 200
 
 └ Create genre (librarian)
-  POST http://127.0.0.1:3000/genres [201 Created, 312B, 425ms]
+  POST http://127.0.0.1:3000/genres [201 Created, 313B, 1464ms]
   √  Status is 201
 
 └ Update genre (librarian)
-  PATCH http://127.0.0.1:3000/genres/6 [200 OK, 317B, 613ms]
+  PATCH http://127.0.0.1:3000/genres/14 [200 OK, 318B, 1449ms]
   √  Status is 200
 
 └ Delete genre (librarian)
-  DELETE http://127.0.0.1:3000/genres/6 [200 OK, 317B, 957ms]
+  DELETE http://127.0.0.1:3000/genres/14 [200 OK, 318B, 1396ms]
   √  Status is 200
 
 └ Delete genre in use (409)
-  DELETE http://127.0.0.1:3000/genres/1 [409 Conflict, 350B, 372ms]
+  DELETE http://127.0.0.1:3000/genres/1 [409 Conflict, 350B, 695ms]
   √  Status is 409
 
 └ Create genre - no token (401)
-  POST http://127.0.0.1:3000/genres [401 Unauthorized, 320B, 7ms]
+  POST http://127.0.0.1:3000/genres [401 Unauthorized, 320B, 8ms]
   √  Status is 401
 
 └ Create genre - patron token (403)
-  POST http://127.0.0.1:3000/genres [403 Forbidden, 343B, 8ms]
+  POST http://127.0.0.1:3000/genres [403 Forbidden, 343B, 11ms]
   √  Status is 403
 
 □ Books
 └ List books (paginated)
-  GET http://127.0.0.1:3000/books?page=1&limit=10 [200 OK, 3.58kB, 740ms]
+  GET http://127.0.0.1:3000/books?page=1&limit=10 [200 OK, 3.58kB, 1212ms]
   √  Status is 200 and body is an array
   √  limit is respected
 
 └ Filter by genre
-  GET http://127.0.0.1:3000/books?genreId=1 [200 OK, 1.59kB, 732ms]
+  GET http://127.0.0.1:3000/books?genreId=1 [200 OK, 1.59kB, 1065ms]
   √  Status is 200
   √  Every book belongs to genre 1
 
 └ Search title or author
-  GET http://127.0.0.1:3000/books?search=clean [200 OK, 581B, 579ms]
+  GET http://127.0.0.1:3000/books?search=clean [200 OK, 581B, 807ms]
   √  Status is 200
 
 └ Get book by id
-  GET http://127.0.0.1:3000/books/1 [200 OK, 612B, 554ms]
+  GET http://127.0.0.1:3000/books/1 [200 OK, 612B, 712ms]
   √  Status is 200
 
 └ Create book (librarian)
-  POST http://127.0.0.1:3000/books [201 Created, 566B, 1306ms]
+  POST http://127.0.0.1:3000/books [201 Created, 566B, 1907ms]
   √  Status is 201
   √  availableCopies equals totalCopies
 
 └ Update book (librarian)
-  PATCH http://127.0.0.1:3000/books/19 [200 OK, 561B, 1460ms]
+  PATCH http://127.0.0.1:3000/books/27 [200 OK, 561B, 2.4s]
   √  Status is 200
 
 └ Delete book (librarian)
-  DELETE http://127.0.0.1:3000/books/19 [200 OK, 509B, 736ms]
+  DELETE http://127.0.0.1:3000/books/27 [200 OK, 509B, 1253ms]
   √  Status is 200
 
 └ Create book - no token (401)
-  POST http://127.0.0.1:3000/books [401 Unauthorized, 320B, 8ms]
+  POST http://127.0.0.1:3000/books [401 Unauthorized, 320B, 5ms]
   √  Status is 401
 
 └ Create book - patron token (403)
-  POST http://127.0.0.1:3000/books [403 Forbidden, 343B, 6ms]
+  POST http://127.0.0.1:3000/books [403 Forbidden, 343B, 10ms]
   √  Status is 403
 
 └ Create book - missing title (400)
-  POST http://127.0.0.1:3000/books [400 Bad Request, 382B, 6ms]
+  POST http://127.0.0.1:3000/books [400 Bad Request, 382B, 8ms]
   √  Status is 400
 
 └ Create book - missing description (400)
-  POST http://127.0.0.1:3000/books [400 Bad Request, 394B, 5ms]
+  POST http://127.0.0.1:3000/books [400 Bad Request, 394B, 6ms]
   √  Status is 400
 
 └ Get missing book (404)
-  GET http://127.0.0.1:3000/books/999999 [404 Not Found, 346B, 201ms]
+  GET http://127.0.0.1:3000/books/999999 [404 Not Found, 346B, 229ms]
   √  Status is 404
 
-┌─────────────────────────┬────────────────────┬────────────────────┐
-│                         │           executed │             failed │
-├─────────────────────────┼────────────────────┼────────────────────┤
-│              iterations │                  1 │                  0 │
-├─────────────────────────┼────────────────────┼────────────────────┤
-│                requests │                 25 │                  0 │
-├─────────────────────────┼────────────────────┼────────────────────┤
-│            test-scripts │                 25 │                  0 │
-├─────────────────────────┼────────────────────┼────────────────────┤
-│      prerequest-scripts │                  0 │                  0 │
-├─────────────────────────┼────────────────────┼────────────────────┤
-│              assertions │                 29 │                  0 │
-├─────────────────────────┴────────────────────┴────────────────────┤
-│ total run duration: 13.7s                                         │
-├───────────────────────────────────────────────────────────────────┤
-│ total data received: 7.73kB (approx)                              │
-├───────────────────────────────────────────────────────────────────┤
-│ average response time: 469ms [min: 5ms, max: 1460ms, s.d.: 417ms] │
-└───────────────────────────────────────────────────────────────────┘
+□ Borrow requests
+└ Stock before (book 1)
+  GET http://127.0.0.1:3000/books/1 [200 OK, 612B, 712ms]
+  √  Status is 200
+
+└ Create borrow request (patron)
+  POST http://127.0.0.1:3000/borrow-requests [201 Created, 475B, 1291ms]
+  √  Status is 201
+  √  Starts as REQUESTED with no fine and no dates
+  √  Keeps a snapshot of the title and author
+
+└ Duplicate open request (409)
+  POST http://127.0.0.1:3000/borrow-requests [409 Conflict, 369B, 540ms]
+  √  Status is 409
+
+└ Borrow request - no token (401)
+  POST http://127.0.0.1:3000/borrow-requests [401 Unauthorized, 320B, 5ms]
+  √  Status is 401
+
+└ Borrow request - unknown book (404)
+  POST http://127.0.0.1:3000/borrow-requests [404 Not Found, 346B, 313ms]
+  √  Status is 404
+
+└ Borrow request - invalid body (400)
+  POST http://127.0.0.1:3000/borrow-requests [400 Bad Request, 397B, 15ms]
+  √  Status is 400
+
+└ My borrow requests (patron)
+  GET http://127.0.0.1:3000/borrow-requests/mine [200 OK, 3.62kB, 576ms]
+  √  Status is 200
+  √  Contains the request just made
+
+└ Patron cannot list all requests (403)
+  GET http://127.0.0.1:3000/admin/borrow-requests [403 Forbidden, 343B, 10ms]
+  √  Status is 403
+
+└ Admin: list REQUESTED (librarian)
+  GET http://127.0.0.1:3000/admin/borrow-requests?status=REQUESTED [200 OK, 518B, 1024ms]
+  √  Status is 200
+  √  Includes the new request, with the patron email and no password
+
+└ Admin: bad status filter (400)
+  GET http://127.0.0.1:3000/admin/borrow-requests?status=NOPE [400 Bad Request, 372B, 6ms]
+  √  Status is 400
+
+└ Approve (librarian)
+  PATCH http://127.0.0.1:3000/admin/borrow-requests/15 [200 OK, 469B, 3.2s]
+  √  Status is 200
+  √  Now APPROVED
+
+└ Stock is one lower while a copy is set aside
+  GET http://127.0.0.1:3000/books/1 [200 OK, 612B, 703ms]
+  √  availableCopies dropped by one
+
+└ Invalid move APPROVED to RETURNED (409)
+  PATCH http://127.0.0.1:3000/admin/borrow-requests/15 [409 Conflict, 380B, 196ms]
+  √  Status is 409
+
+└ Patron cannot update a request (403)
+  PATCH http://127.0.0.1:3000/admin/borrow-requests/15 [403 Forbidden, 343B, 5ms]
+  √  Status is 403
+
+└ Hand over with a due date in the past (BORROWED)
+  PATCH http://127.0.0.1:3000/admin/borrow-requests/15 [200 OK, 491B, 1359ms]
+  √  Status is 200
+  √  BORROWED with the due date set
+
+└ Return it: a fineAmount sent by the client is ignored
+  PATCH http://127.0.0.1:3000/admin/borrow-requests/15 [200 OK, 514B, 2.7s]
+  √  Status is 200
+  √  RETURNED, with a return date
+  √  The SERVER charged 5 days x 10 = 50, not the 0 the client sent
+
+└ Stock is back to what it was
+  GET http://127.0.0.1:3000/books/1 [200 OK, 612B, 417ms]
+  √  availableCopies restored
+
+└ A returned request cannot change again (409)
+  PATCH http://127.0.0.1:3000/admin/borrow-requests/15 [409 Conflict, 380B, 234ms]
+  √  Status is 409
+
+└ Update an unknown request (404)
+  PATCH http://127.0.0.1:3000/admin/borrow-requests/999999 [404 Not Found, 356B, 252ms]
+  √  Status is 404
+
+└ Update with an invalid status (400)
+  PATCH http://127.0.0.1:3000/admin/borrow-requests/15 [400 Bad Request, 435B, 7ms]
+  √  Status is 400
+
+└ Request the book again after returning it (201)
+  POST http://127.0.0.1:3000/borrow-requests [201 Created, 475B, 693ms]
+  √  Status is 201
+
+└ Patron cancels their own request
+  PATCH http://127.0.0.1:3000/borrow-requests/16/cancel [200 OK, 470B, 1459ms]
+  √  Status is 200
+  √  CANCELLED
+
+└ Cancel it again (409)
+  PATCH http://127.0.0.1:3000/borrow-requests/16/cancel [409 Conflict, 387B, 303ms]
+  √  Status is 409
+
+└ A book with borrow history cannot be deleted (409)
+  DELETE http://127.0.0.1:3000/books/1 [409 Conflict, 378B, 1078ms]
+  √  Status is 409
+
+□ Spaces and bookings
+└ List spaces (public)
+  GET http://127.0.0.1:3000/spaces [200 OK, 441B, 437ms]
+  √  Status is 200
+  √  A list of spaces with a name and capacity
+
+└ Book a space (patron)
+  POST http://127.0.0.1:3000/bookings [201 Created, 469B, 3.9s]
+  √  Status is 201
+  √  CONFIRMED, with the space included
+
+└ Overlapping booking: starts inside (409)
+  POST http://127.0.0.1:3000/bookings [409 Conflict, 365B, 1089ms]
+  √  Status is 409 Conflict
+  √  Says the space is already booked
+
+└ Overlapping booking: ends inside (409)
+  POST http://127.0.0.1:3000/bookings [409 Conflict, 365B, 985ms]
+  √  Status is 409
+
+└ Overlapping booking: wraps around it (409)
+  POST http://127.0.0.1:3000/bookings [409 Conflict, 365B, 1133ms]
+  √  Status is 409
+
+└ Back-to-back booking is allowed (201)
+  POST http://127.0.0.1:3000/bookings [201 Created, 469B, 2.8s]
+  √  Status is 201
+
+└ Booking: end before start (400)
+  POST http://127.0.0.1:3000/bookings [400 Bad Request, 370B, 8ms]
+  √  Status is 400
+
+└ Booking: date in the past (400)
+  POST http://127.0.0.1:3000/bookings [400 Bad Request, 359B, 10ms]
+  √  Status is 400
+
+└ Booking: not a real date (400)
+  POST http://127.0.0.1:3000/bookings [400 Bad Request, 361B, 9ms]
+  √  Status is 400
+
+└ Booking: bad time format (400)
+  POST http://127.0.0.1:3000/bookings [400 Bad Request, 374B, 5ms]
+  √  Status is 400
+
+└ Booking: unknown space (404)
+  POST http://127.0.0.1:3000/bookings [404 Not Found, 347B, 195ms]
+  √  Status is 404
+
+└ Booking: no token (401)
+  POST http://127.0.0.1:3000/bookings [401 Unauthorized, 320B, 7ms]
+  √  Status is 401
+
+└ My bookings (patron)
+  GET http://127.0.0.1:3000/bookings/mine [200 OK, 4.79kB, 691ms]
+  √  Status is 200
+  √  Contains the booking just made
+
+└ Patron cannot view all bookings (403)
+  GET http://127.0.0.1:3000/admin/bookings [403 Forbidden, 343B, 6ms]
+  √  Status is 403
+
+└ Admin: bookings on that day (librarian)
+  GET http://127.0.0.1:3000/admin/bookings?date=2027-08-01 [200 OK, 756B, 1271ms]
+  √  Status is 200
+  √  Both of today's test bookings, with the patron email and the space name
+
+└ Admin: bad date filter (400)
+  GET http://127.0.0.1:3000/admin/bookings?date=tomorrow [400 Bad Request, 362B, 6ms]
+  √  Status is 400
+
+└ Cancel a booking (patron)
+  PATCH http://127.0.0.1:3000/bookings/22/cancel [200 OK, 464B, 2.5s]
+  √  Status is 200
+  √  CANCELLED
+
+└ Cancel it again (409)
+  PATCH http://127.0.0.1:3000/bookings/22/cancel [409 Conflict, 356B, 269ms]
+  √  Status is 409
+
+└ The slot is free again after cancelling (201)
+  POST http://127.0.0.1:3000/bookings [201 Created, 469B, 2.4s]
+  √  Status is 201
+
+└ A librarian can cancel any booking
+  PATCH http://127.0.0.1:3000/bookings/23/cancel [200 OK, 464B, 2.3s]
+  √  Status is 200
+  √  CANCELLED
+
+└ Clean up: cancel the last test booking
+  PATCH http://127.0.0.1:3000/bookings/24/cancel [200 OK, 464B, 1204ms]
+  √  Status is 200
+
+└ Cancel an unknown booking (404)
+  PATCH http://127.0.0.1:3000/bookings/999999/cancel [404 Not Found, 349B, 249ms]
+  √  Status is 404
+
+┌─────────────────────────┬───────────────────┬───────────────────┐
+│                         │          executed │            failed │
+├─────────────────────────┼───────────────────┼───────────────────┤
+│              iterations │                 1 │                 0 │
+├─────────────────────────┼───────────────────┼───────────────────┤
+│                requests │                71 │                 0 │
+├─────────────────────────┼───────────────────┼───────────────────┤
+│            test-scripts │                71 │                 0 │
+├─────────────────────────┼───────────────────┼───────────────────┤
+│      prerequest-scripts │                 2 │                 0 │
+├─────────────────────────┼───────────────────┼───────────────────┤
+│              assertions │                91 │                 0 │
+├─────────────────────────┴───────────────────┴───────────────────┤
+│ total run duration: 1m 3.5s                                     │
+├─────────────────────────────────────────────────────────────────┤
+│ total data received: 22.29kB (approx)                           │
+├─────────────────────────────────────────────────────────────────┤
+│ average response time: 805ms [min: 5ms, max: 3.9s, s.d.: 887ms] │
+└─────────────────────────────────────────────────────────────────┘

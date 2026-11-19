@@ -38,6 +38,7 @@ echo "API found at $API"
 OUT=$(mktemp)
 npx --yes newman run docs/postman_collection.json --env-var "baseUrl=$API" --color off --reporters cli > "$OUT" 2>&1
 STATUS=$?
+sed -i 's/\x1b\[[0-9;]*m//g' "$OUT"   # Newman puts colour codes in the failure table even with --color off
 
 if [ "$STATUS" -eq 0 ]; then
   cp "$OUT" docs/newman-results.txt
@@ -45,8 +46,14 @@ if [ "$STATUS" -eq 0 ]; then
   grep -E "│ +(requests|assertions) " "$OUT"
 else
   echo "Some requests FAILED, so docs/newman-results.txt was NOT updated."
-  echo "---- first lines of the Newman output ----"
-  head -45 "$OUT"
+  FAILURES=$(sed -n '/# *failure/,$p' "$OUT")
+  if [ -n "$FAILURES" ]; then
+    echo "---- what failed ----"
+    echo "$FAILURES" | head -80
+  else
+    echo "---- first lines of the Newman output ----"
+    head -45 "$OUT"
+  fi
   echo "---- summary ----"
   sed -n '/┌/,/└/p' "$OUT" | head -20
   exit 1

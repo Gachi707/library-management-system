@@ -1,0 +1,135 @@
+API test report - 2026-11-19 15:47 UTC
+Command: cd api && npm test
+
+
+PASS src/bookings/bookings.service.spec.ts (25.063 s)
+  BookingsService.create
+    √ books a free slot: CONFIRMED, owned by the caller, with the space included (67 ms)
+    √ runs in a Serializable transaction, so concurrent bookings cannot both pass the check (8 ms)
+    √ turns a database serialization failure (two bookings at the same instant) into a friendly 409 (5 ms)
+    √ lets other database errors through untouched (4 ms)
+    overlap check (existing booking: Room A, 10:00 to 12:00)
+      √ the exact same slot -> 10:00 to 12:00 (3336 ms)
+      √ starts inside the existing booking -> 11:00 to 13:00 (18 ms)
+      √ ends inside the existing booking -> 09:00 to 10:30 (25 ms)
+      √ wraps around the existing booking -> 09:00 to 13:00 (10 ms)
+      √ sits entirely inside it -> 10:30 to 11:30 (2 ms)
+      √ starts the minute before it ends -> 11:59 to 13:00 (3 ms)
+      √ ends the minute after it starts -> 09:00 to 10:01 (8 ms)
+      √ starts exactly when it ends (back to back) -> 12:00 to 13:00 (3 ms)
+      √ ends exactly when it starts (back to back) -> 09:00 to 10:00 (2 ms)
+      √ entirely before it -> 08:00 to 09:00 (2 ms)
+      √ entirely after it -> 14:00 to 15:00 (2 ms)
+      √ a different space at the same time is fine (8 ms)
+      √ the same time on a different day is fine (2 ms)
+      √ a CANCELLED booking no longer blocks the slot (2 ms)
+      √ the conflict is a 409 and nothing extra is saved (4 ms)
+    input checks
+      √ 400 when the end is before the start (423 ms)
+      √ 400 when the end equals the start (2 ms)
+      √ 400 for a date in the past (2 ms)
+      √ today is allowed (3 ms)
+      √ 400 for 2026-02-30, which is not a real day (2 ms)
+      √ 400 for 2026-13-01, which is not a real day (2 ms)
+      √ 400 for 2026-00-10, which is not a real day (2 ms)
+      √ 400 for 2026-04-31, which is not a real day (3 ms)
+      √ 404 for a space that does not exist, and nothing is saved (3 ms)
+  BookingsService.cancel
+    √ a patron cancels their own booking, and the slot can be booked again (4 ms)
+    √ a librarian can cancel anyone's booking (1 ms)
+    √ another patron cannot cancel it: it looks like it does not exist (404) (5 ms)
+    √ 409 when it is already cancelled (2 ms)
+    √ 404 for a booking that does not exist (1 ms)
+  BookingsService: lists
+    √ findMine returns only the caller's bookings, soonest first, with the space (3 ms)
+    √ findAll (librarian) shows everyone's bookings with the patron's email, and can filter by date (4 ms)
+    √ findSpaces lists the spaces in id order (3 ms)
+
+PASS src/books/books.service.spec.ts
+  BooksService.remove
+    √ deletes a book nobody has borrowed (14 ms)
+    √ refuses with a clear 409 when borrow requests still point at the book (16 ms)
+    √ checks for borrow history BEFORE trying to delete, so it never depends on the database error code (3 ms)
+    √ still answers 409 if the database itself refuses the delete with P2003 (a request slipped in) (2 ms)
+    √ still answers 409 if the database itself refuses the delete with P2014 (a request slipped in) (1 ms)
+    √ lets any other database error through untouched (15 ms)
+    √ 404 for a book that does not exist (2 ms)
+
+PASS src/borrow-requests/borrow-requests.service.spec.ts (5.314 s)
+  BorrowRequestsService.create
+    √ starts as REQUESTED and keeps a snapshot of the book title and author (83 ms)
+    √ does not touch the stock: only an approval sets a copy aside (11 ms)
+    √ 404 for a book that does not exist (6 ms)
+    √ 409 when the patron already has an open request that is REQUESTED (13 ms)
+    √ 409 when the patron already has an open request that is APPROVED (2 ms)
+    √ 409 when the patron already has an open request that is BORROWED (27 ms)
+    √ 409 when the patron already has an open request that is OVERDUE (40 ms)
+    √ can request again once the earlier request is RETURNED (13 ms)
+    √ can request again once the earlier request is CANCELLED (54 ms)
+    √ a different patron can request the same book (16 ms)
+  BorrowRequestsService.update: the lifecycle, stock and fines
+    √ APPROVED sets a copy aside (15 ms)
+    √ cannot approve when no copies are left, and nothing changes (196 ms)
+    √ two requests, one copy left: the first approval wins, the second is refused (5 ms)
+    √ is all-or-nothing: if the status change fails, the stock change is undone (157 ms)
+    √ BORROWED sets the due date 14 days ahead by default (2 ms)
+    √ BORROWED accepts a librarian-chosen due date, and does not change the stock (3 ms)
+    √ a due date is refused for any status except BORROWED (19 ms)
+    √ a due date on the wrong status is a 400 even when the move itself would also be refused (5 ms)
+    √ RETURNED on time: no fine, the copy goes back on the shelf (4 ms)
+    √ RETURNED late: the fine is worked out from the stored due date (4.5 days late = 5 days x 10) (3 ms)
+    √ ignores a fineAmount sent by the client (6 ms)
+    √ OVERDUE is only allowed once the due date has passed (24 ms)
+    √ OVERDUE keeps the copy held, then RETURNED charges the fine and frees it (5 ms)
+    √ CANCELLED from APPROVED gives the held copy back; from REQUESTED the stock is untouched (9 ms)
+    √ runs the whole journey and ends with the stock where it started (54 ms)
+    √ refuses the move REQUESTED -> REQUESTED and leaves everything unchanged (10 ms)
+    √ refuses the move REQUESTED -> BORROWED and leaves everything unchanged (2 ms)
+    √ refuses the move REQUESTED -> RETURNED and leaves everything unchanged (13 ms)
+    √ refuses the move REQUESTED -> OVERDUE and leaves everything unchanged (5 ms)
+    √ refuses the move APPROVED -> RETURNED and leaves everything unchanged (10 ms)
+    √ refuses the move APPROVED -> OVERDUE and leaves everything unchanged (4 ms)
+    √ refuses the move BORROWED -> APPROVED and leaves everything unchanged (8 ms)
+    √ refuses the move BORROWED -> CANCELLED and leaves everything unchanged (2 ms)
+    √ refuses the move OVERDUE -> BORROWED and leaves everything unchanged (12 ms)
+    √ refuses the move RETURNED -> BORROWED and leaves everything unchanged (6 ms)
+    √ refuses the move RETURNED -> CANCELLED and leaves everything unchanged (9 ms)
+    √ refuses the move CANCELLED -> APPROVED and leaves everything unchanged (2 ms)
+    √ 404 for a request that does not exist (15 ms)
+  BorrowRequestsService.cancelOwn (the patron withdraws a request)
+    √ cancels the patron's own REQUESTED request (2 ms)
+    √ cancelling an APPROVED request gives the held copy back (5 ms)
+    √ someone else's request looks like it does not exist (404) (11 ms)
+    √ cannot cancel a request that is already BORROWED (2 ms)
+    √ cannot cancel a request that is already OVERDUE (3 ms)
+    √ cannot cancel a request that is already RETURNED (2 ms)
+    √ cannot cancel a request that is already CANCELLED (3 ms)
+  BorrowRequestsService: lists
+    √ findMine returns only the caller's requests, newest first (5 ms)
+    √ findAll lists everyone's requests with the patron's email, and can filter by status (15 ms)
+    √ findAll never exposes the patron's password (8 ms)
+
+PASS src/borrow-requests/fine-calculator.spec.ts
+  calculateFine
+    √ returns 0 for a book returned on time (7 ms)
+    √ returns 0 when returned exactly on the due date (2 ms)
+    √ charges the daily rate for each day late (4 ms)
+    √ counts a part of a day as a full day (2 ms)
+    √ uses a custom daily rate (1 ms)
+    √ a rate of 0 means no fine at all (1 ms)
+    √ rejects invalid dates and negative rates instead of returning nonsense (97 ms)
+
+PASS src/app.controller.spec.ts (48.07 s)
+  AppController
+    root
+      √ should return "Hello World!" (22701 ms)
+
+PASS src/prisma/prisma.service.spec.ts (48.07 s)
+  PrismaService
+    √ should be defined (22654 ms)
+
+Test Suites: 6 passed, 6 total
+Tests:       100 passed, 100 total
+Snapshots:   0 total
+Time:        53.16 s
+Ran all test suites.

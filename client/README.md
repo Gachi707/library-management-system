@@ -66,23 +66,6 @@ AuthContext.jsx          token, login(), logout() + localStorage key "token"
 ## Files in this folder
 
 ```text
-client/src/__tests__/auth.test.jsx
-client/src/__tests__/catalog.test.jsx
-client/src/__tests__/readingList.test.jsx
-client/src/__tests__/spaceBooking.test.jsx
-client/src/components/Navbar.jsx
-client/src/components/ProtectedRoute.jsx
-client/src/components/ReadingListButton.jsx
-client/src/context/AuthContext.jsx
-client/src/context/ReadingListContext.jsx
-client/src/pages/LoginPage.jsx
-client/src/pages/ReadingListPage.jsx
-client/src/pages/RegisterPage.jsx
-client/src/pages/SpaceBookingPage.jsx
-client/src/test/helpers.jsx
-client/src/test/setup.js
-client/src/utils/apiError.js
-client/vitest.config.js
 client/.env
 client/.gitignore
 client/README.md
@@ -90,17 +73,34 @@ client/index.html
 client/package-lock.json
 client/package.json
 client/src/App.jsx
+client/src/__tests__/auth.test.jsx
+client/src/__tests__/catalog.test.jsx
+client/src/__tests__/readingList.test.jsx
+client/src/__tests__/spaceBooking.test.jsx
 client/src/components/BookCard.jsx
 client/src/components/BookCover.jsx
 client/src/components/BookGrid.jsx
 client/src/components/GenreFilter.jsx
+client/src/components/Navbar.jsx
+client/src/components/ProtectedRoute.jsx
+client/src/components/ReadingListButton.jsx
 client/src/components/SearchBar.jsx
+client/src/context/AuthContext.jsx
+client/src/context/ReadingListContext.jsx
 client/src/index.css
 client/src/main.jsx
 client/src/pages/BookDetail.jsx
 client/src/pages/HomePage.jsx
+client/src/pages/LoginPage.jsx
 client/src/pages/NotFound.jsx
+client/src/pages/ReadingListPage.jsx
+client/src/pages/RegisterPage.jsx
+client/src/pages/SpaceBookingPage.jsx
+client/src/test/helpers.jsx
+client/src/test/setup.js
+client/src/utils/apiError.js
 client/vite.config.js
+client/vitest.config.js
 ```
 
 ## Automated test results

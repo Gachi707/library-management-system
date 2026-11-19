@@ -17,6 +17,9 @@ model User {
   email    String @unique
   password String
   role     Role   @default(PATRON)
+
+  borrowRequests BorrowRequest[]
+  bookings       Booking[]
 }
 
 model Genre {
@@ -38,4 +41,66 @@ model Book {
   genreId         Int
   genre           Genre    @relation(fields: [genreId], references: [id])
   createdAt       DateTime @default(now())
+
+  borrowRequests BorrowRequest[]
+}
+
+// Where a borrow request is in its life
+enum BorrowStatus {
+  REQUESTED // the patron asked for the book
+  APPROVED // a librarian said yes, and a copy is set aside
+  BORROWED // the patron collected it; dueDate is set
+  RETURNED // it came back; any fine is recorded
+  OVERDUE // not returned by the due date
+  CANCELLED // withdrawn by the patron, or declined by a librarian
+}
+
+enum BookingStatus {
+  CONFIRMED
+  CANCELLED
+}
+
+model BorrowRequest {
+  id          Int          @id @default(autoincrement())
+  userId      Int
+  bookId      Int
+  // A snapshot of the book at request time, so history still reads correctly if the catalog entry later changes
+  bookTitle   String
+  bookAuthor  String
+  status      BorrowStatus @default(REQUESTED)
+  requestDate DateTime     @default(now())
+  dueDate     DateTime?
+  returnDate  DateTime?
+  fineAmount  Float        @default(0)
+
+  user User @relation(fields: [userId], references: [id])
+  book Book @relation(fields: [bookId], references: [id])
+
+  @@index([userId])
+  @@index([status])
+}
+
+model Space {
+  id       Int    @id @default(autoincrement())
+  name     String @unique
+  capacity Int
+
+  bookings Booking[]
+}
+
+model Booking {
+  id        Int           @id @default(autoincrement())
+  userId    Int
+  spaceId   Int
+  date      String // "YYYY-MM-DD"
+  startTime String // 24-hour "HH:MM"
+  endTime   String // 24-hour "HH:MM"
+  status    BookingStatus @default(CONFIRMED)
+  createdAt DateTime      @default(now())
+
+  user  User  @relation(fields: [userId], references: [id])
+  space Space @relation(fields: [spaceId], references: [id])
+
+  @@index([spaceId, date])
+  @@index([userId])
 }

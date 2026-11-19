@@ -1,12 +1,16 @@
 # Files listed here are copied into the ROOT README by scripts/update-readme.sh
-# (the complete client source, including Week 3 and the supporting files, is embedded in client/README.md)
+# (api/README.md and client/README.md embed their own, larger sets of files)
 # One path per line (globs allowed). Lines starting with # are ignored.
 
-# Week 4 required files
-client/src/context/ReadingListContext.jsx
-client/src/App.jsx
-client/src/pages/LoginPage.jsx
-client/src/pages/RegisterPage.jsx
-client/src/components/ProtectedRoute.jsx
-client/src/pages/SpaceBookingPage.jsx
-client/src/components/Navbar.jsx
+# Week 5 required files
+api/prisma/schema.prisma
+api/src/borrow-requests/borrow-requests.controller.ts
+api/src/borrow-requests/borrow-requests.service.ts
+api/src/borrow-requests/borrow-requests.module.ts
+api/src/borrow-requests/dto/create-borrow-request.dto.ts
+api/src/borrow-requests/fine-calculator.ts
+api/src/borrow-requests/fine-calculator.spec.ts
+api/src/bookings/bookings.controller.ts
+api/src/bookings/bookings.service.ts
+api/src/bookings/bookings.module.ts
+api/src/bookings/dto/create-booking.dto.ts

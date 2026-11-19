@@ -87,7 +87,25 @@ export class BooksService {
 
   async remove(id: number) {
     await this.findOne(id);
-    return this.prisma.book.delete({ where: { id } });
+
+    // Ask first, exactly as GenresService does, so the answer never depends on how the database words its refusal
+    const history = await this.prisma.borrowRequest.count({ where: { bookId: id } });
+    if (history > 0) {
+      throw new ConflictException('This book has borrow requests, so it cannot be deleted');
+    }
+
+    try {
+      return await this.prisma.book.delete({ where: { id } });
+    } catch (e) {
+      // Backstop for a request that slips in between the check above and the delete
+      if (
+        e instanceof Prisma.PrismaClientKnownRequestError &&
+        (e.code === 'P2003' || e.code === 'P2014')
+      ) {
+        throw new ConflictException('This book has borrow requests, so it cannot be deleted');
+      }
+      throw e;
+    }
   }
 
   private rethrow(e: unknown): never {

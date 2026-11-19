@@ -66,7 +66,7 @@ check_file client/src/components/SearchBar.jsx 'setTimeout' 'clearTimeout' 'onSe
 check_file client/src/pages/BookDetail.jsx 'useParams' 'axios' '/books/'
 check_file client/.env 'VITE_API_URL'
 check_file client/README.md 'BrowserRouter' 'useParams' 'setTimeout' 'clearTimeout' 'VITE_API_URL' 'GenreFilter'
-check_file README.md '## Client \(Weeks 3 and 4\)' '#### client/src/App.jsx' '#### client/src/context/ReadingListContext.jsx' '#### client/src/pages/LoginPage.jsx'
+check_file README.md '## Client \(Weeks 3 and 4\)' 'client/README.md'
 
 echo ""
 echo "   Week 4 (state, forms and protected routes)"
@@ -78,6 +78,34 @@ check_file client/src/components/ProtectedRoute.jsx 'Navigate' '/login' 'token'
 check_file client/src/pages/SpaceBookingPage.jsx 'useState' 'preventDefault' 'spaceId' 'startTime' 'endTime' 'select'
 check_file client/src/components/Navbar.jsx 'ReadingListContext' 'readingList'
 check_file client/README.md 'ReadingListProvider' 'ProtectedRoute' 'ADD_BOOK'
+
+echo ""
+echo "   Week 5 (borrow requests, bookings, fines)"
+check_file api/prisma/schema.prisma 'enum BorrowStatus' 'enum BookingStatus' 'model BorrowRequest' 'model Booking' 'model Space' 'bookTitle' 'fineAmount' 'dueDate' 'returnDate'
+check_file api/src/borrow-requests/borrow-requests.controller.ts '@Post' '@Patch' 'LIBRARIAN' 'admin/borrow-requests' 'RolesGuard' 'JwtAuthGuard'
+check_file api/src/borrow-requests/borrow-requests.service.ts 'calculateFine' 'availableCopies' '\$transaction' 'REQUESTED' 'RETURNED' 'ConflictException'
+check_file api/src/borrow-requests/borrow-requests.module.ts 'BorrowRequestsService'
+check_file api/src/borrow-requests/dto/create-borrow-request.dto.ts 'IsInt' 'bookId'
+check_file api/src/borrow-requests/fine-calculator.ts 'export function calculateFine'
+check_file api/src/borrow-requests/fine-calculator.spec.ts 'calculateFine' 'describe' 'expect'
+check_file api/src/bookings/bookings.controller.ts '@Post' 'admin/bookings' 'LIBRARIAN' 'JwtAuthGuard'
+check_file api/src/bookings/bookings.service.ts 'findFirst' 'ConflictException' 'CONFIRMED' 'lt:' 'gt:'
+check_file api/src/bookings/bookings.module.ts 'BookingsService'
+check_file api/src/bookings/dto/create-booking.dto.ts 'spaceId' 'startTime' 'endTime'
+check_file api/README.md 'calculateFine' 'BorrowRequest' 'REQUESTED'
+check_file README.md '## Borrow requests and bookings \(Week 5\)' '#### api/src/bookings/bookings.service.ts'
+out=$(curl -s -L -w $'\n%{http_code}' "$RAW/docs/api-test-results.txt?cb=$RANDOM$RANDOM")
+code="${out##*$'\n'}"; body="${out%$'\n'*}"
+if [ "$code" = "200" ]; then
+  line=$(grep -E '^ *Tests:' <<<"$body" | head -1)
+  if [ -n "$line" ] && grep -q 'passed' <<<"$line" && ! grep -q 'failed' <<<"$line"; then
+    pass "docs/api-test-results.txt on GitHub shows every API test passing"
+  else
+    fail "docs/api-test-results.txt on GitHub shows FAILED tests (run: bash scripts/run-api-tests.sh, then update the README and push)"
+  fi
+else
+  echo "  note  docs/api-test-results.txt is not on GitHub (optional, but recommended)"
+fi
 out=$(curl -s -L -w $'\n%{http_code}' "$RAW/docs/client-test-results.txt?cb=$RANDOM$RANDOM")
 code="${out##*$'\n'}"; body="${out%$'\n'*}"
 if [ "$code" = "200" ]; then

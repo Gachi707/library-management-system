@@ -142,6 +142,14 @@ const catalog = [
   },
 ];
 
+// Same order and names as the booking form on the client, so their ids line up (1 to 4)
+const spaces = [
+  { name: 'Room A', capacity: 4 },
+  { name: 'Room B', capacity: 6 },
+  { name: 'Quiet Study Pod', capacity: 1 },
+  { name: 'Group Study Hall', capacity: 12 },
+];
+
 async function main() {
   // Dev-only librarian account so the protected routes can be tested.
   // Change this password for any real deployment.
@@ -155,6 +163,14 @@ async function main() {
       role: 'LIBRARIAN',
     },
   });
+
+  for (const space of spaces) {
+    await prisma.space.upsert({
+      where: { name: space.name },
+      update: {},
+      create: space,
+    });
+  }
 
   for (const g of catalog) {
     // Genres first, because every book needs a genreId that already exists
@@ -180,7 +196,7 @@ async function main() {
       });
     }
   }
-  console.log('Seeding complete: 4 genres, 16 books, 1 librarian');
+  console.log('Seeding complete: 4 genres, 16 books, 4 spaces, 1 librarian');
 }
 
 main()

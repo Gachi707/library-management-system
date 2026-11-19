@@ -3,6 +3,7 @@
 # drift out of date with the code:
 #   1. the "Client" and "Repository Contents" sections of the root README.md (between the markers)
 #   2. client/README.md  (documents the React client and embeds its source code)
+#   3. api/README.md     (documents the API, the borrow-request and booking rules, and embeds the Week 5 code)
 # Everything you wrote yourself in README.md (intro, setup, API notes, Schema Decisions) is left alone.
 # Run from anywhere:  bash scripts/update-readme.sh
 set -euo pipefail
@@ -14,6 +15,7 @@ END='<!-- REQUIRED-FILES:END -->'
 LIST=scripts/readme-files.txt
 RESULTS=docs/newman-results.txt
 CLIENT_RESULTS=docs/client-test-results.txt
+API_RESULTS=docs/api-test-results.txt
 
 files() {
   while IFS= read -r pattern || [ -n "$pattern" ]; do
@@ -36,6 +38,14 @@ client_tests_ok() {
   [ -f "$CLIENT_RESULTS" ] || return 1
   local line
   line=$(grep -E '^ *Tests ' "$CLIENT_RESULTS" | head -1 || true)
+  [ -n "$line" ] && grep -q 'passed' <<<"$line" && ! grep -q 'failed' <<<"$line"
+}
+
+# True only if the Jest summary line says tests passed and none failed
+api_tests_ok() {
+  [ -f "$API_RESULTS" ] || return 1
+  local line
+  line=$(grep -E '^ *Tests:' "$API_RESULTS" | head -1 || true)
   [ -n "$line" ] && grep -q 'passed' <<<"$line" && ! grep -q 'failed' <<<"$line"
 }
 
@@ -66,6 +76,108 @@ client_files() {
     | while IFS= read -r f; do
         case " $priority " in *" $f "*) ;; *) echo "$f" ;; esac
       done
+}
+
+# API files to embed in api/README.md: the Week 5 files (plus the pieces they rely on)
+api_files() {
+  local f
+  {
+    files | grep '^api/' || true
+    for f in api/src/auth/current-user.decorator.ts api/src/borrow-requests/dto/update-borrow-request.dto.ts api/src/books/books.service.ts api/prisma/seed.ts; do
+      [ -f "$f" ] && echo "$f"
+    done
+    compgen -G 'api/prisma/migrations/*/migration.sql' || true
+  } | awk '!seen[$0]++'
+}
+
+write_api_readme() {
+  [ -d api/src/borrow-requests ] || return 0
+  {
+    cat <<'MD'
+# Library API (NestJS, Prisma, PostgreSQL)
+
+The backend for the library system. Weeks 1 and 2 built the catalog and authentication. Week 5 adds the transactional core: **borrow requests** with a status lifecycle and fines, and **space bookings** that can never overlap.
+
+## Run it
+
+1. `cd api && npm install`
+2. Copy `.env.example` to `.env` and set `DATABASE_URL` and `JWT_SECRET`
+3. `npx prisma migrate dev` (creates the tables), then `npx prisma db seed` (genres, books, study spaces and a dev librarian)
+4. `npm run start:dev`
+5. Tests: `npm test` (no database needed)
+
+## Endpoints added in Week 5
+
+| Method and path | Who | What it does |
+|---|---|---|
+| `POST /borrow-requests` | any logged-in user | Ask to borrow a book: body `{ "bookId": 1 }`. Starts as `REQUESTED` |
+| `GET /borrow-requests/mine` | any logged-in user | My requests, newest first |
+| `PATCH /borrow-requests/:id/cancel` | the owner | Withdraw a request that has not been collected |
+| `GET /admin/borrow-requests?status=` | librarian | Everyone's requests, optionally one status |
+| `PATCH /admin/borrow-requests/:id` | librarian | Move a request to its next status: `{ "status": "APPROVED" }` |
+| `GET /spaces` | public | The study spaces |
+| `POST /bookings` | any logged-in user | Book a space: `{ spaceId, date, startTime, endTime }`. `409` if it overlaps |
+| `GET /bookings/mine` | any logged-in user | My bookings |
+| `PATCH /bookings/:id/cancel` | the owner, or a librarian | Cancel a booking |
+| `GET /admin/bookings?date=` | librarian | Every booking, optionally one day |
+
+## The borrow-request lifecycle
+
+```text
+REQUESTED --approve--> APPROVED --hand over--> BORROWED --return--> RETURNED
+    |                     |                       |  ^
+    '-----cancel/decline--'-> CANCELLED           |  '-- return --- OVERDUE
+                                                  '--- past due date ---^
+```
+
+- Only the moves drawn above are allowed. Anything else is `409 Conflict`, and nothing changes.
+- **Stock:** approving sets one copy aside (`availableCopies - 1`, and refused when none are left). Returning or cancelling an approved request puts it back. The stock change and the status change happen in one database transaction, so they succeed or fail together.
+- **Fines:** when a book is returned, `calculateFine(dueDate, returnDate)` charges 10 per day, counting any started day as a full day. The fine is worked out on the server from the stored due date. A `fineAmount` sent by a client is never used.
+- **Who is who:** the patron's id always comes from the verified JWT, never from the request body. `status`, dates and fines cannot be set by a patron.
+- A patron may have only one open request per book. Each request keeps a snapshot of the book's title and author.
+
+## Space bookings
+
+- Two bookings of the same space on the same day overlap exactly when each one starts before the other ends. The check is a single Prisma query: `startTime < newEnd` and `endTime > newStart`, only counting `CONFIRMED` bookings. A booking that ends at 12:00 does not clash with one that starts at 12:00.
+- The check and the insert run in a **Serializable** transaction, so two people booking at the same instant cannot both succeed.
+- Cancelled bookings free the slot again. Dates are `YYYY-MM-DD` and times are 24-hour `HH:MM`; the end must be after the start and the date cannot be in the past.
+
+## Design decisions
+
+- `BorrowRequest` keeps `bookTitle` and `bookAuthor`, so history still reads correctly if the catalog entry changes. A book that has borrow requests cannot be deleted (`409`), because the foreign key protects the history.
+- Declining a request is a move to `CANCELLED`; there is no separate status for it.
+- Librarian routes sit under `/admin/...` and use `JwtAuthGuard` first, then `RolesGuard`.
+
+## Files in this folder
+
+MD
+    echo '```text'
+    git ls-files --cached --others --exclude-standard api | grep -vE '^api/package-lock.json$'
+    echo '```'
+    echo ""
+    if api_tests_ok; then
+      echo "## Automated test results"
+      echo ""
+      echo "_Output of \`cd api && npm test\`, saved by \`scripts/run-api-tests.sh\`._"
+      echo ""
+      echo '```text'
+      tr -d '\r' < "$API_RESULTS"
+      echo '```'
+      echo ""
+    fi
+    echo "## Source code"
+    echo ""
+    echo "_Generated from the real files by \`scripts/update-readme.sh\`._"
+    echo ""
+    api_files | while IFS= read -r f; do
+      echo "### $f"
+      echo ""
+      echo '```'"$(lang "$f")"
+      tr -d '\r' < "$f"
+      echo '```'
+      echo ""
+    done
+  } > api/README.md
 }
 
 write_client_readme() {
@@ -210,6 +322,33 @@ Features: debounced live search, genre filter and sort, book detail pages, a rea
 
 MD
   fi
+  if [ -d api/src/borrow-requests ]; then
+    cat <<'MD'
+## Borrow requests and bookings (Week 5)
+
+The API now handles borrowing and study-space bookings. The full documentation, the lifecycle rules and the complete source are in [`api/README.md`](api/README.md).
+
+1. `cd api && npx prisma migrate dev` creates the new tables, then `npx prisma db seed` adds the study spaces
+2. Unit tests (no database needed): `cd api && npm test` (the saved report is `docs/api-test-results.txt`)
+3. API checks against the running server: `bash scripts/run-tests.sh` (Postman collection, report in `docs/newman-results.txt`)
+
+- Borrow requests move through `REQUESTED`, `APPROVED`, `BORROWED`, `RETURNED`, `OVERDUE` and `CANCELLED`, and only legal moves are accepted. Approving sets a copy aside and returning frees it, inside one database transaction.
+- Fines are worked out on the server by `calculateFine()` from the stored due date, never taken from the client.
+- Space bookings are checked for overlaps with one Prisma query (`startTime < newEnd` and `endTime > newStart`) inside a Serializable transaction, so a space can never be double-booked.
+- Librarian routes: `GET /admin/borrow-requests`, `PATCH /admin/borrow-requests/:id`, `GET /admin/bookings`.
+
+| Week 5 requirement | File |
+|---|---|
+| `BorrowRequest`, `Space`, `Booking` models and the `BorrowStatus` and `BookingStatus` enums, migrated | `api/prisma/schema.prisma` |
+| `POST /borrow-requests`, and the librarian-only `PATCH` that updates the status | `api/src/borrow-requests/borrow-requests.controller.ts` |
+| Request creation, the status lifecycle, stock changes and fines | `api/src/borrow-requests/borrow-requests.service.ts` |
+| Validated input for a borrow request | `api/src/borrow-requests/dto/create-borrow-request.dto.ts` |
+| `calculateFine` and its passing Jest test | `api/src/borrow-requests/fine-calculator.ts`, `fine-calculator.spec.ts` |
+| `POST /bookings` with the overlap check and `409 Conflict` | `api/src/bookings/bookings.controller.ts`, `bookings.service.ts` |
+| Validated input for a booking | `api/src/bookings/dto/create-booking.dto.ts` |
+
+MD
+  fi
   echo "## Repository Contents"
   echo ""
   echo "_Generated from the real files by \`scripts/update-readme.sh\`._"
@@ -238,6 +377,14 @@ MD
     echo '```'
     echo ""
   done
+  if api_tests_ok; then
+    echo "### API test results (Jest)"
+    echo ""
+    echo '```text'
+    tr -d '\r' < "$API_RESULTS"
+    echo '```'
+    echo ""
+  fi
   if client_tests_ok; then
     echo "### Client test results (Vitest)"
     echo ""
@@ -288,14 +435,20 @@ else
   { cat "$STRIPPED"; echo ""; cat "$BLOCK"; } > README.md
 fi
 
+write_api_readme
 write_client_readme
 
 rm -f "$BLOCK" "$CLEAN" "$STRIPPED"
 echo "README.md updated from $(files | wc -l | tr -d ' ') required file(s)"
+[ -f api/README.md ] && [ -d api/src/borrow-requests ] && echo "api/README.md written with $(api_files | wc -l | tr -d ' ') source file(s)"
 [ -f client/README.md ] && echo "client/README.md written with $(client_files | wc -l | tr -d ' ') source file(s)"
 if [ -f "$RESULTS" ] && ! results_ok; then
   echo "WARNING: $RESULTS shows failed requests, so it was NOT put in the README."
   echo "         Run: bash scripts/run-tests.sh   (with the API running) and then this script again."
+fi
+if [ -f "$API_RESULTS" ] && ! api_tests_ok; then
+  echo "WARNING: $API_RESULTS shows failed tests, so it was NOT put in the README."
+  echo "         Run: bash scripts/run-api-tests.sh   and then this script again."
 fi
 if [ -f "$CLIENT_RESULTS" ] && ! client_tests_ok; then
   echo "WARNING: $CLIENT_RESULTS shows failed tests, so it was NOT put in the README."
